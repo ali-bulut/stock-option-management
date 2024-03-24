@@ -7,7 +7,7 @@ class Api::V1::StockSimulationsController < Api::V1::ApplicationController
     if response
       render json: response, status: :ok
     else
-      render_error('An error occurred while running stock simulation', status: :bad_request)
+      render_error(I18n.t(:"api.v1.stock_simulations.failure"), status: :bad_request)
     end
   end
 

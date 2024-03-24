@@ -32,8 +32,10 @@
 en:
   api:
     v1:
+      not_found: "We could not find what you are looking for"
       authentication:
         deny_action: "You need to sign in to access this information"
       authorization:
         deny_action: "%{user_type} users are not authorized to access this action"
-      not_found: "We could not find what you are looking for"
+      stock_simulations:
+        failure: "An error occurred while running stock simulation"
