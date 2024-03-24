@@ -12,7 +12,7 @@ distlib==0.3.8
 filelock==3.13.1
 Flask==3.0.2
 fonttools==4.50.0
-frozendict==2.3.6
+frozendict==2.3.5
 html5lib==1.1
 idna==3.4
 itsdangerous==2.1.2
