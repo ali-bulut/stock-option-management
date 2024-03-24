@@ -1,0 +1,4 @@
+- virtualenv venv
+- source ./venv/bin/activate
+- python server.py
+- flask run (add related .env variables first) => FLASK_APP, FLASK_ENV, FLASK_DEBUG, FLASK_RUN_PORT
