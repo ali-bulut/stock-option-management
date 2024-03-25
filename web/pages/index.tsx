@@ -1,10 +1,29 @@
-import Image from "next/image";
+import { ReactElement } from "react";
+import { Layout, Typography } from "antd";
+import Authentication from "@/components/Layout/Authentication";
+import MainLayout from "@/components/Layout/MainLayout";
+import type { NextPageWithLayout } from "./_app";
 
-export default function Home() {
+const { Title } = Typography;
+
+const Page: NextPageWithLayout = () => {
   return (
-    <div>
-      <h1>Hello World</h1>
-      <Image src="/next.svg" alt="NextJS" width={72} height={16} />
-    </div>
+    <Layout style={{ minHeight: "100vh" }}>
+      <div className="flex flex-col py-32 items-center gap-4">
+        <Title>Stock Option Management</Title>
+
+        <div className="flex flex-col w-full max-w-sm gap-4"></div>
+      </div>
+    </Layout>
   );
-}
+};
+
+Page.getLayout = function getLayout(page: ReactElement) {
+  return (
+    <MainLayout>
+      <Authentication>{page}</Authentication>
+    </MainLayout>
+  );
+};
+
+export default Page;

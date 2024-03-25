@@ -1,0 +1,37 @@
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  :root {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji",
+      "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  }
+}
+
+body,
+p,
+h1,
+h2,
+h3,
+h4,
+h5 {
+  @apply m-0;
+}
+
+body.progress-cursor-everywhere * {
+  @apply !cursor-progress;
+}
+
+.two-rows-label .ant-form-item-label {
+  padding: 4px 0;
+  white-space: normal;
+  line-height: 14px;
+  &:after {
+    content: none;
+  }
+  &.ant-form-item-required:before {
+    position: absolute;
+    left: -7px;
+  }
+}
