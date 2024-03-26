@@ -14,6 +14,6 @@ class Api::V1::StockSimulationsController < Api::V1::ApplicationController
   private
 
   def create_params
-    params.permit(:initial_amount)
+    params.permit(:initial_amount, tickers: [])
   end
 end

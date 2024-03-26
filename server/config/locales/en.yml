@@ -39,3 +39,5 @@ en:
         deny_action: "%{user_type} users are not authorized to access this action"
       stock_simulations:
         failure: "An error occurred while running stock simulation"
+      tickers:
+        failure: "An error occurred while retrieving tickers"
