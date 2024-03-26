@@ -14,11 +14,17 @@ def calculate_rsi(data):
 
     return rsi
 
-def simulation_result(initial_amount):
+def simulation_result(initial_amount, options):
+    if initial_amount is None:
+        initial_amount = 10000
+    else:
+        initial_amount = float(initial_amount)
+
     max_cash_percentage_per_trade = 0.1  # Example: 10% of available cash
 
     # Step 1: Define the available stock options
-    options = ['NVDA', 'AAPL', 'GOOGL', 'AMZN', 'TSLA']
+    if options is None or not options:
+        options = ['NVDA', 'AAPL', 'GOOGL', 'AMZN', 'TSLA']
 
     # Step 3: Initialize cash, shares owned, and transaction history for each option
     cash = initial_amount
