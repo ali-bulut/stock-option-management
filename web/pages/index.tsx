@@ -3,12 +3,13 @@ import { Layout, Typography } from "antd";
 import Authentication from "@/components/Layout/Authentication";
 import MainLayout from "@/components/Layout/MainLayout";
 import type { NextPageWithLayout } from "./_app";
+import Application from "@/components/Layout/Application";
 
 const { Title } = Typography;
 
 const Page: NextPageWithLayout = () => {
   return (
-    <Layout style={{ minHeight: "100vh" }}>
+    <Layout>
       <div className="flex flex-col py-32 items-center gap-4">
         <Title>Stock Option Management</Title>
 
@@ -21,7 +22,9 @@ const Page: NextPageWithLayout = () => {
 Page.getLayout = function getLayout(page: ReactElement) {
   return (
     <MainLayout>
-      <Authentication>{page}</Authentication>
+      <Authentication>
+        <Application>{page}</Application>
+      </Authentication>
     </MainLayout>
   );
 };

@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 import { NextPageWithLayout } from "../_app";
 import useUser from "@/hooks/useUser";
 import ErrorHelper from "@/helpers/ErrorHelper";
+import Application from "@/components/Layout/Application";
 
 type LoginFormParams = {
   email: string;
@@ -43,7 +44,7 @@ const Page: NextPageWithLayout = () => {
 
   return (
     <Layout>
-      <div className="flex justify-center items-center min-h-screen w-full px-4">
+      <div className="flex justify-center items-center min-h-[88vh] w-full px-4">
         {userQuery.isSuccess ? (
           <Card className="w-full max-w-2xl shadow-sm relative">
             <div className="flex justify-between items-center">
@@ -60,11 +61,7 @@ const Page: NextPageWithLayout = () => {
           <Card
             title="Login"
             className="w-full max-w-xl shadow-sm relative -top-1/2"
-            extra={
-              <Button type="link" onClick={() => router.push("/register")}>
-                Sign Up
-              </Button>
-            }
+            extra={<Link href="/register">Sign Up</Link>}
           >
             <Form
               onChange={loginMutation.reset}
@@ -108,7 +105,11 @@ const Page: NextPageWithLayout = () => {
 };
 
 Page.getLayout = function getLayout(page: ReactElement) {
-  return <MainLayout>{page}</MainLayout>;
+  return (
+    <MainLayout>
+      <Application>{page}</Application>
+    </MainLayout>
+  );
 };
 
 export default Page;
