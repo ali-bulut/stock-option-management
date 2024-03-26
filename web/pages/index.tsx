@@ -24,6 +24,8 @@ const Page: NextPageWithLayout = () => {
       return;
     }
 
+    setResponse(undefined);
+
     const res = await toast.promise(
       simulateMutation.mutateAsync({ initial_amount: Number(initialAmount) }),
       {
@@ -53,7 +55,13 @@ const Page: NextPageWithLayout = () => {
             parser={(value) => value!.replace(/\$\s?|(,*)/g, "")}
             onPressEnter={onSimulate}
           />
-          <Button onClick={onSimulate}>Simulate</Button>
+          <Button
+            onClick={onSimulate}
+            disabled={simulateMutation.isLoading}
+            loading={simulateMutation.isLoading}
+          >
+            Simulate
+          </Button>
 
           <pre>{JSON.stringify(response, null, 2)}</pre>
         </div>
