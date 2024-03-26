@@ -5,6 +5,7 @@ import injectAuthHeadersAdapter from "./injectAuthHeadersAdapter";
 // Api Endpoints
 import AuthenticationApi from "./api/AuthenticationApi";
 import UserApi from "./api/UserApi";
+import StockSimulationApi from "./api/StockSimulationApi";
 
 // Defining Server Side Http Client
 const serverSideHttpClient = axios.create(
@@ -26,6 +27,7 @@ const generator = () => {
     BrowserSide: {
       client: browserSideHttpClient,
       UserApi: UserApi(browserSideHttpClient),
+      StockSimulationApi: StockSimulationApi(browserSideHttpClient),
     },
     ServerSide: {
       client: serverSideHttpClient,
