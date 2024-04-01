@@ -7,6 +7,8 @@ import AuthenticationApi from "./api/AuthenticationApi";
 import UserApi from "./api/UserApi";
 import StockSimulationApi from "./api/StockSimulationApi";
 import TickersApi from "./api/TickersApi";
+import PaymentIntentsApi from "./api/PaymentIntentsApi";
+import PaymentMethodsApi from "./api/PaymentMethodsApi";
 
 // Defining Server Side Http Client
 const serverSideHttpClient = axios.create(
@@ -30,11 +32,12 @@ const generator = () => {
       UserApi: UserApi(browserSideHttpClient),
       StockSimulationApi: StockSimulationApi(browserSideHttpClient),
       TickersApi: TickersApi(browserSideHttpClient),
+      PaymentIntentsApi: PaymentIntentsApi(browserSideHttpClient),
+      PaymentMethodsApi: PaymentMethodsApi(browserSideHttpClient),
     },
     ServerSide: {
       client: serverSideHttpClient,
       AuthenticationApi: AuthenticationApi(serverSideHttpClient),
-      UserApi: UserApi(browserSideHttpClient),
     },
   };
 };

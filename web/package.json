@@ -9,9 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "react": "^18",
-    "react-dom": "^18",
-    "next": "14.1.4",
+    "@stripe/react-stripe-js": "^2.6.2",
+    "@stripe/stripe-js": "^3.1.0",
     "@tanstack/react-query": "^4.3.9",
     "@tanstack/react-query-devtools": "^4.2.3",
     "@types/cookie": "^0.6.0",
@@ -25,20 +24,24 @@
     "date-fns-tz": "^1.3.7",
     "dotenv": "^16.3.1",
     "lodash": "^4.17.21",
+    "next": "14.1.4",
     "postcss": "^8.4.32",
+    "react": "^18",
+    "react-dom": "^18",
     "react-error-boundary": "^4.0.12",
     "react-hot-toast": "^2.4.1",
+    "stripe": "^14.4.0",
     "sass": "^1.69.5",
     "tailwindcss": "^3.4.0",
-    "zustand": "^4.4.7",
-    "use-debounce": "^8.0.4"
+    "use-debounce": "^8.0.4",
+    "zustand": "^4.4.7"
   },
   "devDependencies": {
-    "typescript": "^5",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "eslint": "^8",
-    "eslint-config-next": "14.1.4"
+    "eslint-config-next": "14.1.4",
+    "typescript": "^5"
   }
 }
