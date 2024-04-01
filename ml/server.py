@@ -1,6 +1,7 @@
 from flask import Flask, request
 from helpers.simulation import simulation_result
 from helpers.tickers import retrieve_tickers
+import os
 
 app = Flask(__name__)
 
@@ -20,4 +21,4 @@ def tickers():
     return retrieve_tickers(search_param)
  
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 33507)))
