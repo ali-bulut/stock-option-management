@@ -5,6 +5,7 @@ import {
   LogoutOutlined,
   MoonOutlined,
   SunOutlined,
+  SettingOutlined,
 } from "@ant-design/icons";
 import { useIsFetching } from "@tanstack/react-query";
 import { Button, Dropdown, Layout, Spin, Switch } from "antd";
@@ -35,10 +36,20 @@ const Header: FC<HeaderProps> = (props) => {
     });
   };
 
+  const onProfile = async () => {
+    router.push("/profile");
+  };
+
   const menu = {
     items: [
       {
         key: "1",
+        icon: <SettingOutlined />,
+        onClick: onProfile,
+        label: "Profile",
+      },
+      {
+        key: "2",
         icon: <LogoutOutlined />,
         onClick: onLogout,
         label: "Logout",
@@ -49,7 +60,7 @@ const Header: FC<HeaderProps> = (props) => {
   return (
     <Layout.Header className="!sticky !top-0 !w-full !flex !items-center !justify-between !px-4 z-10">
       <div className="flex items-center">
-        <Link href="/" className="text-white text-xl uppercase">
+        <Link href="/" className="text-white sm:text-xl text-sm uppercase">
           stock management
         </Link>
 

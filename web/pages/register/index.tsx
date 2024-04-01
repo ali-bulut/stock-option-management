@@ -3,7 +3,7 @@ import useDomLoaded from "@/hooks/useDomLoaded";
 import useSession from "@/hooks/useSession";
 import { Button, Card, Form, Input, Layout } from "antd";
 import Link from "next/link";
-import Router, { useRouter } from "next/router";
+import { useRouter } from "next/router";
 import { ReactElement } from "react";
 import toast from "react-hot-toast";
 import { NextPageWithLayout } from "../_app";
@@ -31,7 +31,7 @@ const Page: NextPageWithLayout = () => {
         success: "Welcome",
       });
 
-      Router.push("/");
+      router.push("/");
     } catch (error) {}
   };
 
@@ -51,7 +51,7 @@ const Page: NextPageWithLayout = () => {
         {userQuery.isSuccess ? (
           <Card className="w-full max-w-2xl shadow-sm relative">
             <div className="flex justify-between items-center">
-              <p>Already signed in as {user?.name}</p>
+              <p>Signed in as {user.name}</p>
               <div className="flex space-x-3">
                 <Link href="/" passHref>
                   <Button>Continue</Button>
@@ -80,24 +80,36 @@ const Page: NextPageWithLayout = () => {
               onFinish={onRegister}
             >
               <Form.Item
-                label="Name"
+                label="Full Name"
                 name="name"
-                rules={[{ required: true, message: "" }]}
+                rules={[{ required: true, message: "Please enter your name" }]}
               >
                 <Input />
               </Form.Item>
               <Form.Item
                 label="Email"
                 name="email"
-                rules={[{ required: true, message: "" }]}
+                rules={[
+                  {
+                    required: true,
+                    message: "Please enter a valid email",
+                    type: "email",
+                  },
+                ]}
               >
-                <Input type="email" />
+                <Input />
               </Form.Item>
 
               <Form.Item
                 label="Password"
                 name="password"
-                rules={[{ required: true, message: "" }]}
+                rules={[
+                  {
+                    required: true,
+                    min: 8,
+                    message: "Password must be minimum 8 characters",
+                  },
+                ]}
               >
                 <Input.Password />
               </Form.Item>
@@ -110,14 +122,14 @@ const Page: NextPageWithLayout = () => {
                 rules={[
                   {
                     required: true,
-                    message: "",
+                    message: "Passwords must match",
                   },
                   ({ getFieldValue }) => ({
                     validator(_, value) {
                       if (!value || getFieldValue("password") === value) {
                         return Promise.resolve();
                       }
-                      return Promise.reject(new Error(""));
+                      return Promise.reject(new Error("Passwords must match"));
                     },
                   }),
                 ]}

@@ -3,7 +3,7 @@ import useDomLoaded from "@/hooks/useDomLoaded";
 import useSession from "@/hooks/useSession";
 import { Button, Card, Form, Input, Layout } from "antd";
 import Link from "next/link";
-import Router, { useRouter } from "next/router";
+import { useRouter } from "next/router";
 import { ReactElement } from "react";
 import toast from "react-hot-toast";
 import { NextPageWithLayout } from "../_app";
@@ -29,7 +29,7 @@ const Page: NextPageWithLayout = () => {
         success: "Welcome Back",
       });
 
-      Router.push("/");
+      router.push("/");
     } catch (error) {}
   };
   const onLogout = () =>
@@ -48,7 +48,7 @@ const Page: NextPageWithLayout = () => {
         {userQuery.isSuccess ? (
           <Card className="w-full max-w-2xl shadow-sm relative">
             <div className="flex justify-between items-center">
-              <p>Already signed in as {user?.name}</p>
+              <p>Signed in as {user.name}</p>
               <div className="flex space-x-3">
                 <Link href="/" passHref>
                   <Button>Continue</Button>
@@ -74,9 +74,15 @@ const Page: NextPageWithLayout = () => {
               <Form.Item
                 label="Email"
                 name="email"
-                rules={[{ required: true, message: "" }]}
+                rules={[
+                  {
+                    required: true,
+                    message: "Please enter a valid email",
+                    type: "email",
+                  },
+                ]}
               >
-                <Input type="email" />
+                <Input />
               </Form.Item>
 
               <Form.Item

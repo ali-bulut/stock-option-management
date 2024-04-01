@@ -64,9 +64,9 @@ const Page: NextPageWithLayout = () => {
       return;
     }
 
-    setResponse(undefined);
-
     try {
+      setResponse(undefined);
+
       const res = await toast.promise(
         simulateMutation.mutateAsync({
           initial_amount: Number(initialAmount),
@@ -84,11 +84,9 @@ const Page: NextPageWithLayout = () => {
     }
   };
 
-  // console.log(format(parseJSON(new Date(response?.end_date)), "	PPP"));
-
   return (
     <Layout>
-      <div className="flex flex-col py-16 items-center gap-4">
+      <div className="flex flex-col py-8 items-center gap-4">
         <Typography.Title>Stock Option Management</Typography.Title>
 
         <div className="flex flex-col w-full max-w-md gap-4">

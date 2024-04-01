@@ -1,4 +1,5 @@
 import { HttpClient } from "@/api/HttpClient";
+import { IUser } from "@/interfaces/IUser";
 import { useQuery } from "@tanstack/react-query";
 
 export default function useUser() {
@@ -11,5 +12,5 @@ export default function useUser() {
     }
   );
 
-  return { user, userQuery };
+  return { user: user as IUser, userQuery };
 }
