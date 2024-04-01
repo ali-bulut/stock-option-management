@@ -7,7 +7,7 @@ module RequestHelper
   def http_get_request(url, query_params: {})
     uri = URI.parse(url)
     https = Net::HTTP.new(uri.host, uri.port)
-    https.use_ssl = false
+    https.use_ssl = true
 
     request_uri = uri.request_uri
     request_uri += "?#{query_params.to_query}" if query_params.present?
@@ -23,7 +23,7 @@ module RequestHelper
   def http_post_request(url, body: {})
     uri = URI.parse(url)
     https = Net::HTTP.new(uri.host, uri.port)
-    https.use_ssl = false
+    https.use_ssl = true
 
     req = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'application/json')
     req.body = body.to_json
