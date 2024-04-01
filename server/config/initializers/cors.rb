@@ -5,7 +5,7 @@
 
 # Read more: https://github.com/cyu/rack-cors
 
-list = %w[localhost:3000, localhost:3001]
+list = %w[localhost:3000, localhost:3001, stock-management-client-18d9a86897cc.herokuapp.com]
 
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
