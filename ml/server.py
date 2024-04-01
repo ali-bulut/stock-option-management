@@ -20,4 +20,4 @@ def tickers():
     return retrieve_tickers(search_param)
  
 if __name__ == '__main__':
-    app.run(port=8000, debug=True)
+    app.run(host='0.0.0.0')
