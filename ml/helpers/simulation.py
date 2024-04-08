@@ -3,14 +3,15 @@ import pandas as pd
 from sklearn.linear_model import LinearRegression
 
 def calculate_moving_average(data, window):
-    return data.transform(lambda x: x.rolling(window=window).mean())
+    return data.transform(lambda x: x.rolling(window=window, min_periods=1).mean())
 
 def calculate_rsi(data):
     delta = data.diff()
-    gain = delta.where(delta > 0, 0).rolling(window=14).mean()
-    loss = (-delta).where(delta < 0, 0).rolling(window=14).mean()
+    gain = delta.where(delta > 0, 0).rolling(window=14, min_periods=1).mean()
+    loss = (-delta).where(delta < 0, 0).rolling(window=14, min_periods=1).mean()
     rs = gain / loss
     rsi = 100 - (100 / (1 + rs))
+    rsi = rsi.fillna(1) # Replace NaN values in rsi with 1
 
     return rsi
 
@@ -22,19 +23,19 @@ def simulation_result(initial_amount, options):
 
     max_cash_percentage_per_trade = 0.1  # Example: 10% of available cash
 
-    # Step 1: Define the available stock options
+    # Define the available stock options
     if options is None or not options:
-        options = ['NVDA', 'AAPL', 'GOOGL', 'AMZN', 'TSLA']
+        options = ["NVDA", "AAPL", "AMZN", "BTC-USD", "ETH-USD"]
 
-    # Step 3: Initialize cash, shares owned, and transaction history for each option
+    # Initialize cash, shares owned, and transaction history for each option
     cash = initial_amount
     shares_owned = {option: 0 for option in options}
     transaction_history = []
 
-    # Step 4: Collect historical data for training (from 2018-01-01 to 2022-01-01) and train the model
+    # Collect historical data for training (from 2018-01-01 to 2023-01-01) and train the model
     training_data = pd.DataFrame()
     for option in options:
-        stock_data = yf.download(option, start="2018-01-01", end="2022-01-01")
+        stock_data = yf.download(option, start="2018-01-01", end="2023-01-01")
         stock_data['Symbol'] = option  # Add symbol as a column for identification
         stock_data.dropna(inplace=True)
         training_data = pd.concat([training_data, stock_data])
@@ -54,10 +55,10 @@ def simulation_result(initial_amount, options):
     model = LinearRegression()
     model.fit(X_train, y_train)
 
-    # Step 5: Collect data for forecasting (year 2023) and make predictions
+    # Collect data for forecasting (year 2023) and make predictions
     forecast_data = pd.DataFrame()
     for option in options:
-        stock_data = yf.download(option, start="2022-04-01", end="2023-12-31")
+        stock_data = yf.download(option, start="2023-01-04", end="2023-12-31")
         stock_data['Symbol'] = option  # Add symbol as a column for identification
         stock_data.dropna(inplace=True)
         forecast_data = pd.concat([forecast_data, stock_data])
@@ -77,9 +78,11 @@ def simulation_result(initial_amount, options):
     # Simulate trading and calculate final portfolio value
     for i, option in enumerate(options):
         data_for_option = forecast_data[forecast_data['Symbol'] == option]
-        prediction_for_option = predictions[i * len(data_for_option):(i + 1) * len(data_for_option)]
+        if i == 0:
+            total_length = 0
 
         for j, (_, row) in enumerate(data_for_option.iterrows()):
+            prediction_for_option = predictions[total_length:len(data_for_option) + total_length]
             prediction = prediction_for_option[j]
             current_price = row['Close']
             date = row.name
@@ -88,6 +91,9 @@ def simulation_result(initial_amount, options):
                 # Buy
                 if cash > current_price:
                     max_cash_to_invest = cash * max_cash_percentage_per_trade
+                    if max_cash_to_invest < current_price:
+                        max_cash_to_invest = current_price
+
                     shares_to_buy = min(int(max_cash_to_invest / current_price), int(cash / current_price))
                     if shares_to_buy <= 0:
                         continue 
@@ -101,6 +107,18 @@ def simulation_result(initial_amount, options):
                     cash += shares_owned[option] * current_price
                     transaction_history.append((date, 'Sell', option, shares_owned[option], current_price))
                     shares_owned[option] = 0
+
+            # Retrain the model after each iteration/day with most upto date data
+            row_df = pd.DataFrame(row).transpose()
+            training_data = pd.concat([training_data, row_df])
+            X_train = training_data[['MA_50', 'MA_200', 'RSI']]
+            y_train = training_data['Close']
+            model.fit(X_train, y_train)
+
+            # Make new predictions after retraining
+            predictions = model.predict(X_forecast)
+        
+        total_length += len(data_for_option)
 
     start_date = forecast_data.index[0]
     end_date = forecast_data.index[-1]
