@@ -19,7 +19,11 @@ export default function useQueriedTickers() {
   const options = useMemo<Array<IOptionValue>>(
     () =>
       tickers?.map(
-        (ticker) => ({ label: ticker, value: ticker } as IOptionValue)
+        (ticker) =>
+          ({
+            label: `${ticker.symbol} (${ticker.name})`,
+            value: ticker.symbol,
+          } as IOptionValue)
       ) || [],
     [tickers]
   );

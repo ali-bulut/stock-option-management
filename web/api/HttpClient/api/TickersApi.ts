@@ -14,7 +14,7 @@ const TickersApi = (request: Axios) => ({
       context: QueryFunctionContext<ReturnType<typeof indexKey>>
     ) => {
       const [, , filters] = context.queryKey;
-      const response = await request.get<ITicker>("/api/v1/tickers/", {
+      const response = await request.get<Array<ITicker>>("/api/v1/tickers/", {
         params: filters,
       });
       return response.data;

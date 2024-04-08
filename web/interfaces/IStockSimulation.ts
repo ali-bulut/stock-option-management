@@ -1,5 +1,3 @@
-import { ITicker } from "./ITicker";
-
 export interface IStockSimulation {
   start_date: string;
   end_date: string;
@@ -12,5 +10,5 @@ export interface IStockSimulation {
 
 export interface StockSimulationParams {
   initial_amount: number;
-  tickers: ITicker;
+  tickers: Array<string>;
 }
