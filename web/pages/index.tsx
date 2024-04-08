@@ -24,7 +24,7 @@ import CurrencyHelper from "@/helpers/CurrencyHelper";
 import NumberHelper from "@/helpers/NumberHelper";
 import DateHelper from "@/helpers/DateHelper";
 
-const DEFAULT_TICKERS = ["NVDA", "AAPL", "GOOGL", "AMZN", "TSLA"];
+const DEFAULT_TICKERS = ["NVDA", "AAPL", "AMZN", "BTC-USD", "ETH-USD"];
 
 const Page: NextPageWithLayout = () => {
   const { simulateMutation } = useStockSimulation();
@@ -115,7 +115,7 @@ const Page: NextPageWithLayout = () => {
               placeholder="Select Tickers"
               status={!selectedTickers.length ? "error" : undefined}
             />
-            <Tooltip title="Apply Default Stock Options">
+            <Tooltip title="Apply Default Options">
               <Button
                 className="col-span-1"
                 onClick={() => setSelectedTickers(DEFAULT_TICKERS)}
@@ -129,6 +129,7 @@ const Page: NextPageWithLayout = () => {
             addonBefore="$"
             className="w-full"
             placeholder="Enter Initial Amount"
+            min="0"
             onChange={(e) => setInitialAmount(e || "")}
             value={initialAmount}
             formatter={(value) =>
