@@ -163,7 +163,7 @@ def simulation_result(initial_amount, options, auth_token):
             j += 1
 
         if j % 5 == 0:
-            get_request(STOCK_API_URL, dict(transactions=json.dumps(transactions)), auth_token)
+            get_request(STOCK_API_URL, dict(transactions=json.dumps(transactions), date=date.strftime('%B %d, %Y')), auth_token)
 
     start_date = forecast_data.index[0]
     end_date = forecast_data.index[-1]
@@ -194,6 +194,6 @@ def simulation_result(initial_amount, options, auth_token):
 
 
     get_request(STOCK_API_URL, dict(transactions=json.dumps(transactions), result=json.dumps(result), 
-                                                                       end=True), auth_token)
+                                    end=True, date=date.strftime('%B %d, %Y')), auth_token)
     
     return result
