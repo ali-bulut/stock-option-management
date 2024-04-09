@@ -6,7 +6,7 @@ class Api::V1::StockSimulationsController < Api::V1::ApplicationController
     transactions = JSON.parse(params[:transactions]).to_h.with_indifferent_access
 
     ActionCable.server.broadcast("stock_simulation_channel_#{current_user.id}",
-                                 { type: "periodic", transactions: transactions })
+                                 { type: "periodic", transactions: transactions, date: params[:date] })
 
     if params[:end].present? && params[:end] == "True"
       update_user_balance!(transactions[:CASH][transactions[:CASH].keys.last][:total_price])
