@@ -1,6 +1,15 @@
 import yfinance as yf
 import pandas as pd
+import requests
+import json
+import os
 from sklearn.linear_model import LinearRegression
+
+STOCK_API_URL = "/api/v1/stock_simulations"
+
+def get_request(url, params, auth_token):
+    response = requests.get(os.environ.get("API_BASE_URL") + url, params=params, headers={ "Authorization": f"Bearer {auth_token}" })
+    return response.status_code == 200
 
 def calculate_moving_average(data, window):
     return data.transform(lambda x: x.rolling(window=window, min_periods=1).mean())
@@ -15,7 +24,7 @@ def calculate_rsi(data):
 
     return rsi
 
-def simulation_result(initial_amount, options):
+def simulation_result(initial_amount, options, auth_token):
     if initial_amount is None:
         initial_amount = 10000
     else:
@@ -75,17 +84,41 @@ def simulation_result(initial_amount, options):
     X_forecast = forecast_data[['MA_50', 'MA_200', 'RSI']]
     predictions = model.predict(X_forecast)
 
-    # Simulate trading and calculate final portfolio value
-    for i, option in enumerate(options):
-        data_for_option = forecast_data[forecast_data['Symbol'] == option]
-        if i == 0:
-            total_length = 0
+    # Simulate trading for each day and calculate final portfolio value
+    j = 0
+    transactions = {"CASH": {}}
+    for date in pd.date_range(start=forecast_data.index[0], end=forecast_data.index[-1]):
+        skip_day = False
 
-        for j, (_, row) in enumerate(data_for_option.iterrows()):
+        if date.month not in transactions["CASH"]:
+            transactions["CASH"][date.month] = {
+                "total_price": cash,
+                "total_shares": 0,
+            }
+        
+        for i, option in enumerate(options):
+            if option not in transactions:
+                transactions[option] = {}
+            if date.month not in transactions[option]:
+                transactions[option][date.month] = {
+                    "total_price": transactions[option][date.month - 1]["total_price"] if date.month > 1 else 0,
+                    "total_shares": transactions[option][date.month - 1]["total_shares"] if date.month > 1 else 0
+                }
+
+            if i == 0:
+                total_length = 0
+
+            data_for_option = forecast_data[forecast_data['Symbol'] == option]
+            row = data_for_option.filter(like=str(date), axis=0)
+            if row.empty or skip_day:
+                skip_day = True
+                continue
+            
+            row = row.iloc[0]
+
             prediction_for_option = predictions[total_length:len(data_for_option) + total_length]
             prediction = prediction_for_option[j]
             current_price = row['Close']
-            date = row.name
 
             if prediction > current_price:
                 # Buy
@@ -100,12 +133,18 @@ def simulation_result(initial_amount, options):
 
                     shares_owned[option] += shares_to_buy
                     cash -= shares_to_buy * current_price
-                    transaction_history.append((date, 'Buy', option, shares_to_buy, current_price))
+                    transactions[option][date.month]["total_price"] += shares_to_buy * current_price
+                    transactions[option][date.month]["total_shares"] += shares_to_buy
+                    transactions["CASH"][date.month]["total_price"] = cash
+                    transaction_history.append({ 'date': date.strftime('%Y-%m-%d %H:%M:%S'), 'action': 'BUY', 'ticker': option, 'amount_of_options': shares_to_buy, 'price': current_price, 'total_options': shares_owned[option], 'cash': cash })
             elif prediction < current_price:
                 # Sell
                 if shares_owned[option] > 0:
                     cash += shares_owned[option] * current_price
-                    transaction_history.append((date, 'Sell', option, shares_owned[option], current_price))
+                    transactions[option][date.month]["total_price"] = 0
+                    transactions[option][date.month]["total_shares"] = 0
+                    transactions["CASH"][date.month]["total_price"] = cash
+                    transaction_history.append({ 'date': date.strftime('%Y-%m-%d %H:%M:%S'), 'action': 'SELL', 'ticker': option, 'amount_of_options': shares_owned[option], 'price': current_price, 'total_options': 0, 'cash': cash })
                     shares_owned[option] = 0
 
             # Retrain the model after each iteration/day with most upto date data
@@ -117,8 +156,14 @@ def simulation_result(initial_amount, options):
 
             # Make new predictions after retraining
             predictions = model.predict(X_forecast)
+
+            total_length += len(data_for_option)
         
-        total_length += len(data_for_option)
+        if not skip_day:
+            j += 1
+
+        if j % 5 == 0:
+            get_request(STOCK_API_URL, dict(transactions=json.dumps(transactions)), auth_token)
 
     start_date = forecast_data.index[0]
     end_date = forecast_data.index[-1]
@@ -128,21 +173,27 @@ def simulation_result(initial_amount, options):
         if shares > 0:
             current_price = forecast_data[forecast_data['Symbol'] == option].iloc[-1]['Close']
             cash += shares * current_price
-            transaction_history.append((end_date, 'Sell', option, shares, current_price))
+            transactions[option][date.month]["total_price"] = 0
+            transactions[option][date.month]["total_shares"] = 0
+            transactions["CASH"][date.month]["total_price"] = cash
+            transaction_history.append({ 'date': end_date.strftime('%Y-%m-%d %H:%M:%S'), 'action': 'SELL', 'ticker': option, 'amount_of_options': shares, 'price': current_price, 'total_options': 0, 'cash': cash })
             shares_owned[option] = 0
-
-    transaction_history = sorted(transaction_history, key=lambda x: x[0])
 
     # Calculate total return
     final_portfolio_value = cash
     total_return = (final_portfolio_value - initial_amount) / initial_amount
 
-    return {
-        "transaction_history": transaction_history,
+    result = {
         "initial_amount": initial_amount,
         "final_portfolio_value": final_portfolio_value,
         "total_return": total_return,
-        "start_date": start_date,
-        "end_date": end_date,
-        "options_used": list(set(transaction[2] for transaction in transaction_history))
+        "start_date": start_date.strftime('%Y-%m-%d %H:%M:%S'),
+        "end_date": end_date.strftime('%Y-%m-%d %H:%M:%S'),
+        "options_used": list(set(transaction['ticker'] for transaction in transaction_history)),
     }
+
+
+    get_request(STOCK_API_URL, dict(transactions=json.dumps(transactions), result=json.dumps(result), 
+                                                                       end=True), auth_token)
+    
+    return result

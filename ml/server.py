@@ -1,16 +1,24 @@
 from flask import Flask, request
+from multiprocessing import Process
 from helpers.simulation import simulation_result
 from helpers.tickers import retrieve_tickers
+from dotenv import load_dotenv
 import os
 
 app = Flask(__name__)
+load_dotenv()
 
 @app.route('/stock_simulations', methods=['POST'])
 def stock_simulations():
     tickers = request.get_json().get('tickers')
     initial_amount = request.get_json().get('initial_amount')
+    auth_token = request.get_json().get('auth_token')
 
-    return simulation_result(initial_amount, tickers)
+    p = Process(target=simulation_result, args=(initial_amount, tickers, auth_token))
+    p.daemon = True
+    p.start()
+
+    return { 'message': 'Simulation started' }
 
 @app.route('/tickers', methods=['GET'])
 def tickers():
