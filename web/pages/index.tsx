@@ -5,6 +5,7 @@ import {
   InputNumber,
   Layout,
   Select,
+  Spin,
   Tooltip,
   Typography,
 } from "antd";
@@ -25,7 +26,14 @@ import SimulationResult from "@/components/SimulationResult";
 const DEFAULT_TICKERS = ["NVDA", "AAPL", "AMZN", "BTC-USD", "ETH-USD"];
 
 const Page: NextPageWithLayout = () => {
-  const { transactions, result, setResult, setTransactions } = useWebhook(true);
+  const {
+    transactions,
+    result,
+    simulationDate,
+    setSimulationDate,
+    setResult,
+    setTransactions,
+  } = useWebhook(true);
   const { simulateMutation } = useStockSimulation();
   const {
     options: tickerOptions,
@@ -65,6 +73,7 @@ const Page: NextPageWithLayout = () => {
     try {
       setResult(undefined);
       setTransactions(undefined);
+      setSimulationDate(undefined);
 
       await toast.promise(
         simulateMutation.mutateAsync({
@@ -155,6 +164,8 @@ const Page: NextPageWithLayout = () => {
               <Divider />
 
               <SimulationResult
+                initialAmount={initialAmount}
+                simulationDate={simulationDate}
                 isSimulationRunning={isSimulationRunning}
                 result={result}
               />
@@ -163,11 +174,18 @@ const Page: NextPageWithLayout = () => {
         </div>
       </div>
 
-      {transactions && (
-        <div className="sm:px-16 h-[60vh]">
+      <div className="sm:px-16 h-[60vh]">
+        {transactions ? (
           <Chart transactions={transactions} />
-        </div>
-      )}
+        ) : (
+          <div className="h-full flex flex-col gap-2 justify-center items-center">
+            <Typography.Text className="font-bold text-lg">
+              Setting Up The Simulation...
+            </Typography.Text>
+            <Spin />
+          </div>
+        )}
+      </div>
     </Layout>
   );
 };

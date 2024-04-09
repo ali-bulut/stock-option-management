@@ -7,6 +7,7 @@ import useUser from "./useUser";
 export default function useWebhook(enabled: boolean = true) {
   const [transactions, setTransactions] = useState<ITransactions>();
   const [result, setResult] = useState<IStockSimulation>();
+  const [simulationDate, setSimulationDate] = useState<string>();
   const { user } = useUser();
   const { readyState, getWebSocket, sendJsonMessage } = useWebSocket(
     EnvironmentHelper.WEBSOCKET_URL,
@@ -29,6 +30,7 @@ export default function useWebhook(enabled: boolean = true) {
         const response = data.message;
         if (response.type == "periodic") {
           setTransactions(response.transactions);
+          setSimulationDate(response.date);
         } else if (response.type == "end") {
           setResult(response.result);
         }
@@ -36,5 +38,12 @@ export default function useWebhook(enabled: boolean = true) {
     };
   }
 
-  return { transactions, result, setTransactions, setResult };
+  return {
+    transactions,
+    result,
+    simulationDate,
+    setSimulationDate,
+    setTransactions,
+    setResult,
+  };
 }

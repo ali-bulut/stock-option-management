@@ -9,6 +9,8 @@ import DateHelper from "@/helpers/DateHelper";
 interface SimulationResultProps {
   isSimulationRunning: boolean | undefined;
   result: IStockSimulation | undefined;
+  simulationDate: string | undefined;
+  initialAmount: string;
 }
 
 const SimulationResult: FC<SimulationResultProps> = (props) => {
@@ -16,18 +18,13 @@ const SimulationResult: FC<SimulationResultProps> = (props) => {
     <div>
       <Typography.Text className="block text-xl font-extrabold text-center -mt-4 mb-4">
         Simulation Results
-        {props.isSimulationRunning && <Spin className="ml-2" />}
       </Typography.Text>
 
       <Typography.Text className="block">
         <Typography.Text className="font-bold text-base">
           Initial Amount:
         </Typography.Text>{" "}
-        {!props.isSimulationRunning && props.result ? (
-          CurrencyHelper.format(props.result.initial_amount)
-        ) : (
-          <Spin indicator={<LoadingOutlined style={{ fontSize: 14 }} />} />
-        )}
+        {CurrencyHelper.format(+props.initialAmount)}
       </Typography.Text>
 
       <Typography.Text className="block">
@@ -69,6 +66,17 @@ const SimulationResult: FC<SimulationResultProps> = (props) => {
         </Typography.Text>{" "}
         {!props.isSimulationRunning && props.result ? (
           DateHelper.format(props.result.end_date)
+        ) : (
+          <Spin indicator={<LoadingOutlined style={{ fontSize: 14 }} />} />
+        )}
+      </Typography.Text>
+
+      <Typography.Text className="flex flex-col justify-center items-center mt-4 -mb-4">
+        <Typography.Text className="font-bold text-base">
+          Current Date
+        </Typography.Text>{" "}
+        {props.simulationDate ? (
+          DateHelper.format(props.simulationDate)
         ) : (
           <Spin indicator={<LoadingOutlined style={{ fontSize: 14 }} />} />
         )}
