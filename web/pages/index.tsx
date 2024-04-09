@@ -1,7 +1,6 @@
 import { ReactElement, useState } from "react";
 import {
   Button,
-  Collapse,
   Divider,
   InputNumber,
   Layout,
@@ -17,16 +16,16 @@ import Application from "@/components/Layout/Application";
 import useStockSimulation from "@/hooks/useStockSimulation";
 import toast from "react-hot-toast";
 import ErrorHelper from "@/helpers/ErrorHelper";
-import { IStockSimulation } from "@/interfaces/IStockSimulation";
 import useQueriedTickers from "@/hooks/useQueriedTickers";
 import { IOptionValue } from "@/interfaces/IOptionValue";
-import CurrencyHelper from "@/helpers/CurrencyHelper";
-import NumberHelper from "@/helpers/NumberHelper";
-import DateHelper from "@/helpers/DateHelper";
+import Chart from "@/components/Chart";
+import useWebhook from "@/hooks/useWebhook";
+import SimulationResult from "@/components/SimulationResult";
 
 const DEFAULT_TICKERS = ["NVDA", "AAPL", "AMZN", "BTC-USD", "ETH-USD"];
 
 const Page: NextPageWithLayout = () => {
+  const { transactions, result, setResult, setTransactions } = useWebhook(true);
   const { simulateMutation } = useStockSimulation();
   const {
     options: tickerOptions,
@@ -35,7 +34,6 @@ const Page: NextPageWithLayout = () => {
   } = useQueriedTickers();
 
   const [initialAmount, setInitialAmount] = useState("");
-  const [response, setResponse] = useState<IStockSimulation>();
   const [selectedTickers, setSelectedTickers] =
     useState<string[]>(DEFAULT_TICKERS);
 
@@ -65,24 +63,29 @@ const Page: NextPageWithLayout = () => {
     }
 
     try {
-      setResponse(undefined);
+      setResult(undefined);
+      setTransactions(undefined);
 
-      const res = await toast.promise(
+      await toast.promise(
         simulateMutation.mutateAsync({
           initial_amount: Number(initialAmount),
           tickers: selectedTickers,
         }),
         {
           error: ErrorHelper.parseApiError,
-          loading: "Simulating...",
-          success: "Simulation Completed!",
+          loading: "Simulation Starting ...",
+          success: "Simulation Started!",
         }
       );
-      setResponse(res.data);
     } catch (err) {
       console.log(err);
     }
   };
+
+  const isSimulationRunning =
+    simulateMutation.isLoading ||
+    (simulateMutation.isSuccess && !result) ||
+    (transactions && !result);
 
   return (
     <Layout>
@@ -138,77 +141,33 @@ const Page: NextPageWithLayout = () => {
             parser={(value) => value!.replace(/\$\s?|(,*)/g, "")}
             onPressEnter={onSimulate}
           />
+
           <Button
             onClick={onSimulate}
-            disabled={simulateMutation.isLoading}
-            loading={simulateMutation.isLoading}
+            disabled={isSimulationRunning}
+            loading={isSimulationRunning}
           >
             Simulate
           </Button>
 
-          {response ? (
+          {(result || isSimulationRunning) && (
             <>
               <Divider />
 
-              <div>
-                <Typography.Text className="block text-xl font-extrabold text-center -mt-4 mb-4">
-                  Simulation Results
-                </Typography.Text>
-
-                <Typography.Text className="block">
-                  <Typography.Text className="font-bold text-base">
-                    Initial Amount:
-                  </Typography.Text>{" "}
-                  {CurrencyHelper.format(response.initial_amount)}
-                </Typography.Text>
-
-                <Typography.Text className="block">
-                  <Typography.Text className="font-bold text-base">
-                    Final Portfolio Value:
-                  </Typography.Text>{" "}
-                  {CurrencyHelper.format(response.final_portfolio_value)}
-                </Typography.Text>
-
-                <Typography.Text className="block">
-                  <Typography.Text className="font-bold text-base">
-                    Total Return:
-                  </Typography.Text>{" "}
-                  {NumberHelper.formatPercentage(response.total_return)}
-                </Typography.Text>
-
-                <Typography.Text className="block">
-                  <Typography.Text className="font-bold text-base">
-                    Start Date:
-                  </Typography.Text>{" "}
-                  {DateHelper.format(response.start_date)}
-                </Typography.Text>
-
-                <Typography.Text className="block">
-                  <Typography.Text className="font-bold text-base">
-                    End Date:
-                  </Typography.Text>{" "}
-                  {DateHelper.format(response.end_date)}
-                </Typography.Text>
-              </div>
-
-              <Collapse
-                className="mt-4"
-                items={[
-                  {
-                    key: "1",
-                    label: (
-                      <Typography.Text className="font-bold">
-                        Transaction History
-                      </Typography.Text>
-                    ),
-                    children: <pre>{JSON.stringify(response, null, 2)}</pre>,
-                  },
-                ]}
+              <SimulationResult
+                isSimulationRunning={isSimulationRunning}
+                result={result}
               />
             </>
-          ) : null}
+          )}
         </div>
       </div>
+
+      {transactions && (
+        <div className="sm:px-16 h-[60vh]">
+          <Chart transactions={transactions} />
+        </div>
+      )}
     </Layout>
   );
 };
