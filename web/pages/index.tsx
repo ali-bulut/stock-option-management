@@ -177,14 +177,14 @@ const Page: NextPageWithLayout = () => {
       <div className="sm:px-16 h-[60vh]">
         {transactions ? (
           <Chart transactions={transactions} />
-        ) : (
+        ) : isSimulationRunning ? (
           <div className="h-full flex flex-col gap-2 justify-center items-center">
             <Typography.Text className="font-bold text-lg">
               Setting Up The Simulation...
             </Typography.Text>
             <Spin />
           </div>
-        )}
+        ) : undefined}
       </div>
     </Layout>
   );
