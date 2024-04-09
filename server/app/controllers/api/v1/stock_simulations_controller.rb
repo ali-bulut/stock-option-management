@@ -2,15 +2,28 @@ class Api::V1::StockSimulationsController < Api::V1::ApplicationController
   include RequestHelper
   before_action :check_user_balance, only: :create
 
-  def create
-    response = http_post_request("#{ENV["ML_API_BASE_URL"]}/stock_simulations", body: create_params)
+  def show
+    transactions = JSON.parse(params[:transactions]).to_h.with_indifferent_access
 
-    if response
-      update_user_balance!(response)
-      render json: response, status: :ok
-    else
-      render_error(I18n.t(:"api.v1.stock_simulations.failure"), status: :bad_request)
+    ActionCable.server.broadcast("stock_simulation_channel_#{current_user.id}",
+                                 { type: "periodic", transactions: transactions })
+
+    if params[:end].present? && params[:end] == "True"
+      update_user_balance!(transactions[:CASH][transactions[:CASH].keys.last][:total_price])
+
+      result = JSON.parse(params[:result]).to_h.with_indifferent_access
+      ActionCable.server.broadcast("stock_simulation_channel_#{current_user.id}",
+                                   { type: "end", result: result })
     end
+  end
+
+  def create
+    http_post_request("#{ENV["ML_API_BASE_URL"]}/stock_simulations",
+                      body: create_params.merge({ auth_token: auth_token }))
+
+    update_user_balance!(-create_params[:initial_amount])
+
+    render json: { success: true }, status: :ok
   end
 
   private
@@ -25,9 +38,7 @@ class Api::V1::StockSimulationsController < Api::V1::ApplicationController
     end
   end
 
-  def update_user_balance!(response)
-    data = JSON.parse(response).deep_symbolize_keys
-    changed_amount = data[:final_portfolio_value] - data[:initial_amount]
+  def update_user_balance!(changed_amount)
     current_user.increment!(:balance_in_cents, MoneyFormatHelper.to_cents(changed_amount))
   end
 end
