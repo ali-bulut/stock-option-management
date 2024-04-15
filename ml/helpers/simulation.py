@@ -120,6 +120,10 @@ def simulation_result(initial_amount, options, auth_token):
             prediction = prediction_for_option[j]
             current_price = row['Close']
 
+            # Update total price for each transaction
+            if date.month in transactions[option] and transactions[option][date.month]["total_shares"] > 0:
+                transactions[option][date.month]["total_price"] = transactions[option][date.month]["total_shares"] * current_price
+
             if prediction > current_price:
                 # Buy
                 if cash > current_price:
