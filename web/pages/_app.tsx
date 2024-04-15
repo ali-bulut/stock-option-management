@@ -37,7 +37,15 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   // Use the layout defined at the page level, if available
   const getLayout = Component.getLayout ?? ((page) => page);
 
-  const { darkMode } = useDarkModeStore();
+  const { darkMode, setDarkMode } = useDarkModeStore();
+
+  if (typeof window !== "undefined" && window?.matchMedia) {
+    window
+      .matchMedia("(prefers-color-scheme: dark)")
+      .addEventListener("change", (event) => {
+        setDarkMode(event.matches);
+      });
+  }
 
   return (
     <ConfigProvider
