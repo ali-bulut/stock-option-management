@@ -31,7 +31,7 @@ const Page: NextPageWithLayout = () => {
         success: "Welcome",
       });
 
-      router.push("/");
+      router.push({ pathname: "/profile", query: { new: true } }, "/profile");
     } catch (error) {}
   };
 

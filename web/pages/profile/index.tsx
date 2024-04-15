@@ -3,15 +3,17 @@ import { NextPageWithLayout } from "../_app";
 import MainLayout from "@/components/Layout/MainLayout";
 import Authentication from "@/components/Layout/Authentication";
 import Application from "@/components/Layout/Application";
-import { Avatar, Button, Card, Layout, Typography } from "antd";
+import { Alert, Avatar, Button, Card, Layout, Typography } from "antd";
 import Meta from "antd/es/card/Meta";
 import useUser from "@/hooks/useUser";
 import CurrencyHelper from "@/helpers/CurrencyHelper";
 import { PaymentModal } from "@/components/Payment";
 import { useModalControls } from "@/hooks/useModalControls";
 import { WalletOutlined } from "@ant-design/icons";
+import { useRouter } from "next/router";
 
 const Page: NextPageWithLayout = () => {
+  const router = useRouter();
   const { user, userQuery } = useUser();
   const { open, openModal, closeModal } = useModalControls();
 
@@ -24,6 +26,20 @@ const Page: NextPageWithLayout = () => {
 
   return (
     <Layout>
+      {router.query.new && (
+        <Alert
+          message={
+            <Typography.Text className="font-medium">
+              Let's transfer some money into your wallet to start trading!
+            </Typography.Text>
+          }
+          type="info"
+          className="my-3 flex justify-center items-center"
+          showIcon
+          closable
+        />
+      )}
+
       <div className="flex flex-col py-8 items-center gap-4">
         <Typography.Title>Profile</Typography.Title>
 
