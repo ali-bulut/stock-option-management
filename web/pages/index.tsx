@@ -114,7 +114,7 @@ const Page: NextPageWithLayout = () => {
                   selectedTickers.filter((ticker) => ticker !== data.value)
                 )
               }
-              maxCount={9}
+              maxCount={7}
               options={tickerOptions}
               showSearch
               labelInValue
