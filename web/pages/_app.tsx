@@ -11,7 +11,6 @@ import {
   Hydrate,
   QueryCache,
 } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { App, ConfigProvider, theme } from "antd";
 import useDarkModeStore from "@/hooks/useDarkModeStore";
 
@@ -64,7 +63,6 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
             </Head>
             <Toaster />
             {getLayout(<Component {...pageProps} />)}
-            <ReactQueryDevtools initialIsOpen={false} position="bottom-right" />
           </Hydrate>
         </QueryClientProvider>
       </App>
