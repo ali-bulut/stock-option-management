@@ -8,7 +8,7 @@ import {
   SettingOutlined,
 } from "@ant-design/icons";
 import { useIsFetching } from "@tanstack/react-query";
-import { Button, Dropdown, Layout, Spin, Switch } from "antd";
+import { Button, Dropdown, Layout, Spin, Switch, Typography } from "antd";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FC } from "react";
@@ -71,8 +71,14 @@ const Header: FC<HeaderProps> = (props) => {
 
       <div className="flex items-center space-x-3">
         {user ? (
-          <Dropdown trigger={["click"]} menu={menu}>
-            <Button icon={<UserOutlined />}>{user.name}</Button>
+          <Dropdown
+            trigger={["click"]}
+            menu={menu}
+            className="sm:max-w-fit max-w-32"
+          >
+            <Button icon={<UserOutlined />}>
+              <Typography.Text ellipsis>{user.name}</Typography.Text>
+            </Button>
           </Dropdown>
         ) : null}
 
