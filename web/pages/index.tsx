@@ -141,7 +141,7 @@ const Page: NextPageWithLayout = () => {
           <InputNumber
             addonBefore="$"
             className="w-full"
-            placeholder="Enter Initial Amount"
+            placeholder="Enter Amount"
             min="0"
             onChange={(e) => setInitialAmount(e || "")}
             value={initialAmount}
