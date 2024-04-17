@@ -21,6 +21,7 @@ const Page: NextPageWithLayout = () => {
     // This is a hack to update the user balance after a successful payment intent webhook
     setTimeout(() => {
       userQuery.refetch();
+      if (router.query.new) router.push("/");
     }, 1500);
   };
 
