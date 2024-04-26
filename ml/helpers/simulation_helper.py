@@ -1,30 +1,11 @@
 import yfinance as yf
 import pandas as pd
-import requests
 import json
-import os
 from sklearn.linear_model import LinearRegression
+from helpers.technical_analysis_helper import calculate_moving_average, calculate_rsi
+from helpers.http_request_helper import get_request
 
-STOCK_API_URL = "/api/v1/stock_simulations"
-
-def get_request(url, params, auth_token):
-    response = requests.get(os.environ.get("API_BASE_URL") + url, params=params, headers={ "Authorization": f"Bearer {auth_token}" })
-    return response.status_code == 200
-
-def calculate_moving_average(data, window):
-    return data.transform(lambda x: x.rolling(window=window, min_periods=1).mean())
-
-def calculate_rsi(data):
-    delta = data.diff()
-    gain = delta.where(delta > 0, 0).rolling(window=14, min_periods=1).mean()
-    loss = (-delta).where(delta < 0, 0).rolling(window=14, min_periods=1).mean()
-    rs = gain / loss
-    rsi = 100 - (100 / (1 + rs))
-    rsi = rsi.fillna(1) # Replace NaN values in rsi with 1
-
-    return rsi
-
-def simulation_result(initial_amount, options, auth_token):
+def simulate(initial_amount, options, auth_token):
     if initial_amount is None:
         initial_amount = 10000
     else:
@@ -167,7 +148,7 @@ def simulation_result(initial_amount, options, auth_token):
             j += 1
 
         if j % 5 == 0:
-            get_request(STOCK_API_URL, dict(transactions=json.dumps(transactions), date=date.strftime('%B %d, %Y')), auth_token)
+            get_request(dict(transactions=json.dumps(transactions), date=date.strftime('%B %d, %Y')), auth_token)
 
     start_date = forecast_data.index[0]
     end_date = forecast_data.index[-1]
@@ -196,8 +177,6 @@ def simulation_result(initial_amount, options, auth_token):
         "options_used": list(set(transaction['ticker'] for transaction in transaction_history)),
     }
 
-
-    get_request(STOCK_API_URL, dict(transactions=json.dumps(transactions), result=json.dumps(result), 
-                                    end=True, date=date.strftime('%B %d, %Y')), auth_token)
+    get_request(dict(transactions=json.dumps(transactions), result=json.dumps(result), end=True, date=date.strftime('%B %d, %Y')), auth_token)
     
     return result

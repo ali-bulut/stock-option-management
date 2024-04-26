@@ -1,7 +1,8 @@
 from flask import Flask, request
 from multiprocessing import Process
-from helpers.simulation import simulation_result
-from helpers.tickers import retrieve_tickers
+from helpers.simulation_helper import simulate
+from helpers.tickers_helper import retrieve_tickers
+from helpers.trade_helper import trade
 from dotenv import load_dotenv
 import os
 
@@ -14,11 +15,25 @@ def stock_simulations():
     initial_amount = request.get_json().get('initial_amount')
     auth_token = request.get_json().get('auth_token')
 
-    p = Process(target=simulation_result, args=(initial_amount, tickers, auth_token))
+    p = Process(target=simulate, args=(initial_amount, tickers, auth_token))
     p.daemon = True
     p.start()
 
     return { 'message': 'Simulation started' }
+
+
+@app.route('/stock_trades', methods=['POST'])
+def stock_trades():
+    options = request.get_json().get('options')
+    cash = request.get_json().get('cash')
+    shares_owned = request.get_json().get('shares_owned') # { "AAPL": 10, "AMZN": 5 }
+    auth_token = request.get_json().get('auth_token')
+
+    p = Process(target=trade, args=(cash, options, shares_owned, auth_token))
+    p.daemon = True
+    p.start()
+
+    return { 'message': 'Trade started' }
 
 @app.route('/tickers', methods=['GET'])
 def tickers():
