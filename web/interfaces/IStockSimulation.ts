@@ -10,7 +10,7 @@ export interface IStockSimulation {
 
 export interface StockSimulationParams {
   initial_amount: number;
-  tickers: Array<string>;
+  stock_options: Array<string>;
 }
 
 export interface ITransactionHistory {

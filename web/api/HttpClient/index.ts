@@ -6,7 +6,7 @@ import injectAuthHeadersAdapter from "./injectAuthHeadersAdapter";
 import AuthenticationApi from "./api/AuthenticationApi";
 import UserApi from "./api/UserApi";
 import StockSimulationApi from "./api/StockSimulationApi";
-import TickersApi from "./api/TickersApi";
+import StockOptionsApi from "./api/StockOptionsApi";
 import PaymentIntentsApi from "./api/PaymentIntentsApi";
 import PaymentMethodsApi from "./api/PaymentMethodsApi";
 
@@ -31,7 +31,7 @@ const generator = () => {
       client: browserSideHttpClient,
       UserApi: UserApi(browserSideHttpClient),
       StockSimulationApi: StockSimulationApi(browserSideHttpClient),
-      TickersApi: TickersApi(browserSideHttpClient),
+      StockOptionsApi: StockOptionsApi(browserSideHttpClient),
       PaymentIntentsApi: PaymentIntentsApi(browserSideHttpClient),
       PaymentMethodsApi: PaymentMethodsApi(browserSideHttpClient),
     },

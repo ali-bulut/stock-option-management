@@ -17,13 +17,13 @@ import Application from "@/components/Layout/Application";
 import useStockSimulation from "@/hooks/useStockSimulation";
 import toast from "react-hot-toast";
 import ErrorHelper from "@/helpers/ErrorHelper";
-import useQueriedTickers from "@/hooks/useQueriedTickers";
+import useQueriedStockOptions from "@/hooks/useQueriedStockOptions";
 import { IOptionValue } from "@/interfaces/IOptionValue";
 import Chart from "@/components/Chart";
 import useWebhook from "@/hooks/useWebhook";
 import SimulationResult from "@/components/SimulationResult";
 
-const DEFAULT_TICKERS = ["NVDA", "AAPL", "AMZN", "BTC-USD", "ETH-USD"];
+const DEFAULT_STOCK_OPTIONS = ["NVDA", "AAPL", "AMZN", "BTC-USD", "ETH-USD"];
 
 const Page: NextPageWithLayout = () => {
   const {
@@ -36,23 +36,24 @@ const Page: NextPageWithLayout = () => {
   } = useWebhook(true);
   const { simulateMutation } = useStockSimulation();
   const {
-    options: tickerOptions,
-    isLoading: tickersIsLoading,
-    setQuery: setTickersQuery,
-  } = useQueriedTickers();
+    options: stockOptions,
+    isLoading: stockOptionsIsLoading,
+    setQuery: setStockOptionsQuery,
+  } = useQueriedStockOptions();
 
   const [initialAmount, setInitialAmount] = useState("");
-  const [selectedTickers, setSelectedTickers] =
-    useState<string[]>(DEFAULT_TICKERS);
+  const [selectedStockOptions, setSelectedStockOptions] = useState<string[]>(
+    DEFAULT_STOCK_OPTIONS
+  );
 
-  const onTickerSelect = (data: IOptionValue) => {
-    setSelectedTickers([...selectedTickers, data.value]);
-    setTickersQuery("");
+  const onStockOptionSelect = (data: IOptionValue) => {
+    setSelectedStockOptions([...selectedStockOptions, data.value]);
+    setStockOptionsQuery("");
   };
 
-  const onTickerClear = () => {
-    setSelectedTickers([]);
-    setTickersQuery("");
+  const onStockOptionClear = () => {
+    setSelectedStockOptions([]);
+    setStockOptionsQuery("");
   };
 
   const onSimulate = async () => {
@@ -63,9 +64,9 @@ const Page: NextPageWithLayout = () => {
       return;
     }
 
-    if (!selectedTickers.length) {
-      toast.error("Please select at least one ticker", {
-        id: "tickers-empty",
+    if (!selectedStockOptions.length) {
+      toast.error("Please select at least one stock option", {
+        id: "stock-options-empty",
       });
       return;
     }
@@ -78,7 +79,7 @@ const Page: NextPageWithLayout = () => {
       await toast.promise(
         simulateMutation.mutateAsync({
           initial_amount: Number(initialAmount),
-          tickers: selectedTickers,
+          stock_options: selectedStockOptions,
         }),
         {
           error: ErrorHelper.parseApiError,
@@ -105,33 +106,35 @@ const Page: NextPageWithLayout = () => {
           <div className="grid grid-cols-6 gap-2">
             <Select
               className="col-span-5"
-              loading={tickersIsLoading}
-              onSearch={setTickersQuery}
-              onClear={onTickerClear}
-              onSelect={onTickerSelect}
+              loading={stockOptionsIsLoading}
+              onSearch={setStockOptionsQuery}
+              onClear={onStockOptionClear}
+              onSelect={onStockOptionSelect}
               onDeselect={(data) =>
-                setSelectedTickers(
-                  selectedTickers.filter((ticker) => ticker !== data.value)
+                setSelectedStockOptions(
+                  selectedStockOptions.filter(
+                    (stockOption) => stockOption !== data.value
+                  )
                 )
               }
               maxCount={7}
-              options={tickerOptions}
+              options={stockOptions}
               showSearch
               labelInValue
               allowClear
               filterOption={false}
-              value={selectedTickers.map((ticker) => ({
-                label: ticker,
-                value: ticker,
+              value={selectedStockOptions.map((stockOption) => ({
+                label: stockOption,
+                value: stockOption,
               }))}
               mode="multiple"
-              placeholder="Select Tickers"
-              status={!selectedTickers.length ? "error" : undefined}
+              placeholder="Select Stock Options"
+              status={!selectedStockOptions.length ? "error" : undefined}
             />
             <Tooltip title="Apply Default Options">
               <Button
                 className="col-span-1"
-                onClick={() => setSelectedTickers(DEFAULT_TICKERS)}
+                onClick={() => setSelectedStockOptions(DEFAULT_STOCK_OPTIONS)}
               >
                 <ReloadOutlined />
               </Button>

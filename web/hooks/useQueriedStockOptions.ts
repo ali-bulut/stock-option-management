@@ -4,35 +4,37 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useDebounce } from "use-debounce";
 
-export default function useQueriedTickers() {
+export default function useQueriedStockOptions() {
   const [query, _setQuery] = useState<string>("");
   const [debouncedQuery] = useDebounce(query, 300);
   const setQuery = (newQuery: string) => {
     _setQuery(newQuery);
   };
 
-  const { data: tickers, isLoading } = useQuery(
-    HttpClient.BrowserSide.TickersApi.index.key({ search: debouncedQuery }),
-    HttpClient.BrowserSide.TickersApi.index.fetcher
+  const { data: stockOptions, isLoading } = useQuery(
+    HttpClient.BrowserSide.StockOptionsApi.index.key({
+      search: debouncedQuery,
+    }),
+    HttpClient.BrowserSide.StockOptionsApi.index.fetcher
   );
 
   const options = useMemo<Array<IOptionValue>>(
     () =>
-      tickers?.map(
-        (ticker) =>
+      stockOptions?.map(
+        (stockOption) =>
           ({
-            label: `${ticker.symbol} (${ticker.name})`,
-            value: ticker.symbol,
+            label: `${stockOption.symbol} (${stockOption.name})`,
+            value: stockOption.symbol,
           } as IOptionValue)
       ) || [],
-    [tickers]
+    [stockOptions]
   );
 
   return {
     query,
     setQuery,
     options,
-    tickers,
+    stockOptions,
     isLoading: isLoading || query !== debouncedQuery,
   };
 }
