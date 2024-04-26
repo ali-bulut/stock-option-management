@@ -2,6 +2,7 @@ Sidekiq::Web.use ActionDispatch::Cookies
 Sidekiq::Web.use ActionDispatch::Session::CookieStore, key: "_interslice_session"
 
 Rails.application.routes.draw do
+  mount RailsAdmin::Engine => '/', as: 'rails_admin'
   mount StripeEvent::Engine, at: '/stripe-webhooks'
   mount Sidekiq::Web => '/sidekiq'
 
