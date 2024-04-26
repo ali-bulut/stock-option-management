@@ -1,0 +1,3 @@
+Test:
+  cron: every 1 minute
+  class: TestJob
