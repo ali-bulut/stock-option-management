@@ -9,6 +9,8 @@ RailsAdmin.config do |config|
     end
   end
 
+  config.excluded_models = [TradePlanStockOption]
+
   config.actions do
     dashboard
     index

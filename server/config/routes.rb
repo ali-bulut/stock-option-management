@@ -11,6 +11,7 @@ Rails.application.routes.draw do
       resource :sessions, only: [:create]
       resource :users, only: [:show, :create, :update, :destroy]
       resources :stock_options, only: [:index]
+      resources :trade_plans, only: [:index, :show, :create, :update, :destroy]
       resource :stock_simulations, only: [:create, :show]
       resource :payment_intents, only: [:create]
       resources :payment_methods, only: [:index]
