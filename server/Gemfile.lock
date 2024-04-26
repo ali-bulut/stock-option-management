@@ -78,6 +78,9 @@ GEM
     concurrent-ruby (1.2.3)
     connection_pool (2.4.1)
     crass (1.0.6)
+    data_migrate (9.3.0)
+      activerecord (>= 6.1)
+      railties (>= 6.1)
     date (3.3.4)
     debug (1.9.1)
       irb (~> 1.10)
@@ -246,6 +249,7 @@ DEPENDENCIES
   bcrypt (~> 3.1.7)
   blueprinter (~> 0.25.3)
   bootsnap
+  data_migrate (~> 9.3)
   debug
   dotenv-rails
   jwt (~> 2.2.3)

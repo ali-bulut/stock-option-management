@@ -10,9 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_03_24_161554) do
+ActiveRecord::Schema[7.0].define(version: 2024_04_26_210639) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "data_migrations", primary_key: "version", id: :string, force: :cascade do |t|
+  end
+
+  create_table "stock_options", force: :cascade do |t|
+    t.string "symbol", null: false
+    t.string "name", null: false
+    t.index ["symbol"], name: "index_stock_options_on_symbol", unique: true
+  end
 
   create_table "users", force: :cascade do |t|
     t.string "name", null: false
@@ -20,6 +29,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_03_24_161554) do
     t.string "password_digest", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "stripe_customer_id", null: false
+    t.integer "balance_in_cents", default: 0, null: false
     t.index ["email"], name: "index_users_on_email"
   end
 

@@ -40,5 +40,3 @@ en:
       stock_simulations:
         failure: "An error occurred while running stock simulation"
         insufficient_balance: "You do not have enough money in your wallet to run this simulation"
-      tickers:
-        failure: "An error occurred while retrieving tickers"
