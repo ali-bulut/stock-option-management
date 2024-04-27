@@ -4,17 +4,22 @@ import pandas as pd
 from sklearn.linear_model import LinearRegression
 from helpers.technical_analysis_helper import calculate_moving_average, calculate_rsi
 from helpers.date_helper import get_date
-from helpers.http_request_helper import get_request, TRADE_ENDPOINT_URL
+from helpers.http_request_helper import put_request
 
-def trade(cash, options, shares_owned, auth_token):
-    cash = float(cash)
+def trade(trade_plan_id, stock_options):
+    for stock_option in stock_options:
+        stock_option["quantity"] = float(stock_option["quantity"])
+
+    cash = float(list(filter(lambda p: p["stock_option_symbol"] == "CASH", stock_options))[0]["quantity"] / 100)
     max_cash_percentage_per_trade = 0.1
+
+    stock_options = list(filter(lambda p: p["stock_option_symbol"] != "CASH", stock_options))
 
     # Collect historical data for training (from 2018-01-01 to NOW) and train the model
     training_data = pd.DataFrame()
-    for option in options:
-        stock_data = yf.download(option, start="2018-01-01", end=get_date(1))
-        stock_data['Symbol'] = option  # Add symbol as a column for identification
+    for option in stock_options:
+        stock_data = yf.download(option["stock_option_symbol"], start="2018-01-01", end=get_date(1))
+        stock_data['Symbol'] = option["stock_option_symbol"]  # Add symbol as a column for identification
         stock_data.dropna(inplace=True)
         training_data = pd.concat([training_data, stock_data])
 
@@ -35,11 +40,16 @@ def trade(cash, options, shares_owned, auth_token):
 
     forecast_data = training_data
     X_forecast = forecast_data[['MA_50', 'MA_200', 'RSI']]
-    predictions = model.predict(X_forecast.filter(like=str(get_date()), axis=0)) # Get today's predictions
+    todays_forecast = X_forecast.filter(like=str(get_date()), axis=0)
+    
+    if todays_forecast.empty:
+        return cash, stock_options
+
+    predictions = model.predict(todays_forecast) # Get today's predictions
 
     index = 0
-    for i, option in enumerate(options):
-        data_for_option = forecast_data[forecast_data['Symbol'] == option]
+    for i, option in enumerate(stock_options):
+        data_for_option = forecast_data[forecast_data['Symbol'] == option["stock_option_symbol"]]
         row = data_for_option.filter(like=str(get_date()), axis=0)
         if row.empty:
             continue
@@ -51,26 +61,32 @@ def trade(cash, options, shares_owned, auth_token):
         index += 1
 
         if prediction > current_price:
-            print(f"Prediction for {option} is higher than current price. Buying shares..., {prediction} > {current_price}")
-            # Buy
-            if cash > current_price:
+            # Partial Buy for Coins
+            if stock_options[i]["partial_buy"] == True:
                 max_cash_to_invest = cash * max_cash_percentage_per_trade
-                if max_cash_to_invest < current_price:
-                    max_cash_to_invest = current_price
-
-                shares_to_buy = min(int(max_cash_to_invest / current_price), int(cash / current_price))
+                shares_to_buy = max_cash_to_invest / current_price
                 if shares_to_buy <= 0:
-                    continue 
+                    continue
+            else: # Full Buy for Regular Stocks
+                if cash > current_price:
+                    max_cash_to_invest = cash * max_cash_percentage_per_trade
+                    if max_cash_to_invest < current_price:
+                        max_cash_to_invest = current_price
 
-                shares_owned[option] += shares_to_buy
-                cash -= shares_to_buy * current_price
+                    shares_to_buy = min(int(max_cash_to_invest / current_price), int(cash / current_price))
+                    if shares_to_buy <= 0:
+                        continue 
+
+            stock_options[i]["quantity"] += shares_to_buy
+            cash -= shares_to_buy * current_price
         elif prediction < current_price:
             print(f"Prediction for {option} is lower than current price. Selling shares..., {prediction} < {current_price}")
             # Sell
-            if shares_owned[option] > 0:
-                cash += shares_owned[option] * current_price
-                shares_owned[option] = 0
+            if stock_options[i]["quantity"] > 0:
+                cash += stock_options[i]["quantity"] * current_price
+                stock_options[i]["quantity"] = 0
 
-    get_request(dict(cash=cash, shares_owned=json.dumps(shares_owned)), auth_token, TRADE_ENDPOINT_URL)
+    stock_options.append({ "stock_option_symbol": "CASH", "quantity": int(cash * 100) })
+    put_request(dict(trade_plan_id=trade_plan_id, stock_options=json.dumps(stock_options)))
 
-    return cash, shares_owned
+    return cash, stock_options

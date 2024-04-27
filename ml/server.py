@@ -24,12 +24,10 @@ def stock_simulations():
 
 @app.route('/stock_trades', methods=['POST'])
 def stock_trades():
-    options = request.get_json().get('options')
-    cash = request.get_json().get('cash')
-    shares_owned = request.get_json().get('shares_owned') # { "AAPL": 10, "AMZN": 5 }
-    auth_token = request.get_json().get('auth_token')
+    trade_plan_id = request.get_json().get('trade_plan_id')
+    stock_options = request.get_json().get('stock_options')
 
-    p = Process(target=trade, args=(cash, options, shares_owned, auth_token))
+    p = Process(target=trade, args=(trade_plan_id, stock_options))
     p.daemon = True
     p.start()
 
