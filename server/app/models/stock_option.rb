@@ -4,6 +4,7 @@ class StockOption < ActiveRecord::Base
   validates_presence_of :symbol, :name
   validates_uniqueness_of :symbol
 
+  scope :exclude_cash, -> { where.not(symbol: "CASH") }
   scope :search, -> (value) { where(arel_table[:symbol].matches("%#{value}%"))
                                 .or(where(arel_table[:name].matches("%#{value}%"))) }
 

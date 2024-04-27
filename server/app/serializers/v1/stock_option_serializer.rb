@@ -1,4 +1,8 @@
 class V1::StockOptionSerializer < V1::ApplicationSerializer
   identifier :id
-  fields :symbol, :name, :price
+  fields :symbol, :name
+
+  view :with_price do
+    field :price
+  end
 end
