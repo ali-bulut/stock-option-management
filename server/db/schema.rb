@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_04_26_213656) do
+ActiveRecord::Schema[7.0].define(version: 2024_04_27_124043) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -20,12 +20,14 @@ ActiveRecord::Schema[7.0].define(version: 2024_04_26_213656) do
   create_table "stock_options", force: :cascade do |t|
     t.string "symbol", null: false
     t.string "name", null: false
+    t.boolean "partial_buy", default: false, null: false
     t.index ["symbol"], name: "index_stock_options_on_symbol", unique: true
   end
 
   create_table "trade_plan_stock_options", force: :cascade do |t|
     t.bigint "trade_plan_id", null: false
     t.bigint "stock_option_id", null: false
+    t.decimal "quantity", precision: 30, scale: 15, default: "0.0", null: false
     t.index ["stock_option_id"], name: "index_trade_plan_stock_options_on_stock_option_id"
     t.index ["trade_plan_id", "stock_option_id"], name: "index_on_trade_plan_id_and_stock_option_id", unique: true
     t.index ["trade_plan_id"], name: "index_trade_plan_stock_options_on_trade_plan_id"
@@ -34,7 +36,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_04_26_213656) do
   create_table "trade_plans", force: :cascade do |t|
     t.string "name", null: false
     t.text "description"
-    t.integer "amount", null: false
+    t.integer "initial_amount", null: false
     t.boolean "active", default: true, null: false
     t.bigint "user_id", null: false
     t.datetime "created_at", null: false

@@ -1,6 +1,7 @@
 class PopulateStockOptions < ActiveRecord::Migration[7.0]
   def up
     stock_options = [
+      { symbol: 'CASH', name: 'Cash' },
       { symbol: 'AIY.DE', name: 'Activision Blizzard Inc.' },
       { symbol: 'ADBE', name: 'Adobe Inc.' },
       { symbol: 'AMZN', name: 'Amazon.com Inc.' },
