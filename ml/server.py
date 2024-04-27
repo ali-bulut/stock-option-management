@@ -2,6 +2,7 @@ from flask import Flask, request
 from multiprocessing import Process
 from helpers.simulation_helper import simulate
 from helpers.trade_helper import trade
+from helpers.stock_option_helper import get_stock_option_price
 from dotenv import load_dotenv
 import os
 
@@ -33,6 +34,15 @@ def stock_trades():
     p.start()
 
     return { 'message': 'Trade started' }
+
+
+@app.route('/stock_options', methods=['GET'])
+def stock_options():
+    symbol = request.args.get('symbol')
+    if symbol is None:
+        return { 'message': 'No symbol parameter provided' }
+
+    return { 'price': get_stock_option_price(symbol) }
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 33507)))
