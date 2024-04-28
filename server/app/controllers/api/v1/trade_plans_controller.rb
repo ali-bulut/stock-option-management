@@ -69,10 +69,10 @@ class Api::V1::TradePlansController < Api::V1::ApplicationController
   end
 
   def create_params
-    params.permit(:name, :description, :initial_amount, stock_option_ids: [])
+    params.permit(:name, :description, :initial_amount, :notify, stock_option_ids: [])
   end
 
   def update_params
-    params.permit(:name, :description, :active, stock_option_ids: [])
+    params.permit(:name, :description, :active, :notify, stock_option_ids: [])
   end
 end

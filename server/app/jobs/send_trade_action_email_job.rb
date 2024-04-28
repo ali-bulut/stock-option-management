@@ -17,6 +17,7 @@ class SendTradeActionEmailJob < ApplicationJob
                            initial_amount: MoneyFormatHelper.to_currency(trade_plan.initial_amount),
                            total_amount: MoneyFormatHelper.to_currency(total_amount_of_trade_plan),
                            total_return: total_return.round(2),
+                           cash: MoneyFormatHelper.to_currency(trade_plan.trade_plan_stock_options.cash.quantity),
                            stock_options: stock_options }}
     personalizations = [{ to: trade_plan.user.email, subs: subs }]
 
