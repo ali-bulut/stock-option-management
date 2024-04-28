@@ -59,11 +59,7 @@ class Api::V1::TradePlansController < Api::V1::ApplicationController
       end
     end
 
-    if @trade_plan.notify == true
-      personalizations = [{ to: @trade_plan.user.email, subs: { user: { name: "Ali Bulut" },
-                                                                trade_actions: trade_actions }}]
-      AppMailerJob.perform_later(personalizations, "d-f8d51a04d34848efbe0e125c442e7bb9")
-    end
+    SendTradeActionEmailJob.perform_later(@trade_plan.id, trade_actions)
   end
 
   private

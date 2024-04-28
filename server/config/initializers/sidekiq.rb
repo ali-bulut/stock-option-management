@@ -2,6 +2,8 @@ require 'sidekiq'
 require 'sidekiq/web'
 require 'sidekiq/cron/web'
 
+Sidekiq.strict_args!(false)
+
 Sidekiq.configure_server do |config|
   config.redis = { url: ENV.fetch("REDIS_URL") }
 end
