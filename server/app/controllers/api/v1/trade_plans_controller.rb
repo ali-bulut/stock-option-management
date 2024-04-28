@@ -39,13 +39,30 @@ class Api::V1::TradePlansController < Api::V1::ApplicationController
   def update_stock_options_quantity
     @trade_plan = TradePlan.find(params[:id])
 
+    trade_actions = []
+
     TradePlanStockOption.transaction do
       JSON.parse(params["stock_options"]).each do |stock_option|
         stock_option = stock_option.with_indifferent_access
-
         trade_plan_stock_option = @trade_plan.trade_plan_stock_options.by_symbol(stock_option[:stock_option_symbol])
-        trade_plan_stock_option.update!(quantity: stock_option[:quantity])
+
+        if trade_plan_stock_option.quantity != stock_option[:quantity]
+          if stock_option[:stock_option_symbol] != "CASH"
+            quantity_change = trade_plan_stock_option.quantity - stock_option[:quantity]
+            trade_actions << { symbol: stock_option[:stock_option_symbol],
+                               quantity_change: quantity_change.abs.to_s,
+                               action: quantity_change.positive? ? "SOLD" : "BOUGHT" }
+          end
+
+          trade_plan_stock_option.update!(quantity: stock_option[:quantity])
+        end
       end
+    end
+
+    if @trade_plan.notify == true
+      personalizations = [{ to: @trade_plan.user.email, subs: { user: { name: "Ali Bulut" },
+                                                                trade_actions: trade_actions }}]
+      AppMailerJob.perform_later(personalizations, "d-f8d51a04d34848efbe0e125c442e7bb9")
     end
   end
 
