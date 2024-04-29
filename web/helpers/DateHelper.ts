@@ -12,6 +12,8 @@ export default class DateHelper {
    * @returns formatted date
    */
   public static format = (date: string, formatStr: string = "PPP"): string => {
-    return format(new Date(date), formatStr);
+    // return format(new Date(date), formatStr);
+    // TODO: check about date format issue on mobile browsers
+    return date;
   };
 }
