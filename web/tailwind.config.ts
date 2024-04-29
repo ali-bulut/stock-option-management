@@ -28,6 +28,9 @@ const config: Config = {
         "macos-dark-teal": "rgb(106, 196, 220)",
         "macos-dark-yellow": "rgb(255, 214, 10)",
       },
+      maxWidth: {
+        xxs: "11rem",
+      },
     },
   },
   plugins: [],

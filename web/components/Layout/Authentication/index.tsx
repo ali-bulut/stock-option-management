@@ -32,7 +32,6 @@ const Authentication: FC<AuthenticationProps> = (props) => {
   const onRetry = () => userQuery.refetch();
 
   useEffect(() => {
-    console.log(userQuery.error as any);
     if ((userQuery.error as AxiosError)?.response?.status === 401) {
       router.push("/login");
     }

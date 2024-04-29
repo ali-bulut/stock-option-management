@@ -1,15 +1,5 @@
 import { ReactElement, useState } from "react";
-import {
-  Button,
-  Divider,
-  InputNumber,
-  Layout,
-  Select,
-  Spin,
-  Tooltip,
-  Typography,
-} from "antd";
-import { ReloadOutlined } from "@ant-design/icons";
+import { Button, Divider, InputNumber, Layout, Spin, Typography } from "antd";
 import Authentication from "@/components/Layout/Authentication";
 import MainLayout from "@/components/Layout/MainLayout";
 import type { NextPageWithLayout } from "./_app";
@@ -17,13 +7,13 @@ import Application from "@/components/Layout/Application";
 import useStockSimulation from "@/hooks/useStockSimulation";
 import toast from "react-hot-toast";
 import ErrorHelper from "@/helpers/ErrorHelper";
-import useQueriedStockOptions from "@/hooks/useQueriedStockOptions";
-import { IOptionValue } from "@/interfaces/IOptionValue";
 import Chart from "@/components/Chart";
 import useWebhook from "@/hooks/useWebhook";
 import SimulationResult from "@/components/SimulationResult";
-
-const DEFAULT_STOCK_OPTIONS = ["NVDA", "AAPL", "AMZN", "BTC-USD", "ETH-USD"];
+import classNames from "classnames";
+import StockOptionSelect, {
+  DEFAULT_STOCK_OPTIONS,
+} from "@/components/StockOptionSelect";
 
 const Page: NextPageWithLayout = () => {
   const {
@@ -34,27 +24,13 @@ const Page: NextPageWithLayout = () => {
     setResult,
     setTransactions,
   } = useWebhook(true);
+
   const { simulateMutation } = useStockSimulation();
-  const {
-    options: stockOptions,
-    isLoading: stockOptionsIsLoading,
-    setQuery: setStockOptionsQuery,
-  } = useQueriedStockOptions();
 
   const [initialAmount, setInitialAmount] = useState("");
   const [selectedStockOptions, setSelectedStockOptions] = useState<string[]>(
     DEFAULT_STOCK_OPTIONS
   );
-
-  const onStockOptionSelect = (data: IOptionValue) => {
-    setSelectedStockOptions([...selectedStockOptions, data.value]);
-    setStockOptionsQuery("");
-  };
-
-  const onStockOptionClear = () => {
-    setSelectedStockOptions([]);
-    setStockOptionsQuery("");
-  };
 
   const onSimulate = async () => {
     if (!initialAmount) {
@@ -100,52 +76,26 @@ const Page: NextPageWithLayout = () => {
   return (
     <Layout>
       <div className="flex flex-col py-8 items-center gap-4">
-        <Typography.Title>Stock Option Management</Typography.Title>
+        <div className="flex flex-col justify-center items-center">
+          <Typography.Title className="!mb-1.5">
+            Trading Simulation
+          </Typography.Title>
+          <Typography.Text className="italic font-medium font-sans text-center">
+            What would your profit have been if you had used our system
+            throughout 2023?
+          </Typography.Text>
+        </div>
 
         <div className="flex flex-col w-full max-w-md gap-4">
-          <div className="grid grid-cols-6 gap-2">
-            <Select
-              className="col-span-5"
-              loading={stockOptionsIsLoading}
-              onSearch={setStockOptionsQuery}
-              onClear={onStockOptionClear}
-              onSelect={onStockOptionSelect}
-              onDeselect={(data) =>
-                setSelectedStockOptions(
-                  selectedStockOptions.filter(
-                    (stockOption) => stockOption !== data.value
-                  )
-                )
-              }
-              maxCount={7}
-              options={stockOptions}
-              showSearch
-              labelInValue
-              allowClear
-              filterOption={false}
-              value={selectedStockOptions.map((stockOption) => ({
-                label: stockOption,
-                value: stockOption,
-              }))}
-              mode="multiple"
-              placeholder="Select Stock Options"
-              status={!selectedStockOptions.length ? "error" : undefined}
-            />
-            <Tooltip title="Apply Default Options">
-              <Button
-                className="col-span-1"
-                onClick={() => setSelectedStockOptions(DEFAULT_STOCK_OPTIONS)}
-              >
-                <ReloadOutlined />
-              </Button>
-            </Tooltip>
-          </div>
+          <StockOptionSelect
+            selectedStockOptions={selectedStockOptions}
+            setSelectedStockOptions={setSelectedStockOptions}
+          />
 
           <InputNumber
             addonBefore="$"
             className="w-full"
             placeholder="Enter Amount"
-            min="0"
             onChange={(e) => setInitialAmount(e || "")}
             value={initialAmount}
             formatter={(value) =>
@@ -178,7 +128,12 @@ const Page: NextPageWithLayout = () => {
         </div>
       </div>
 
-      <div className="sm:px-16 h-[60vh]">
+      <div
+        className={classNames(
+          "sm:px-16 h-[60vh]",
+          !transactions && !isSimulationRunning && "!h-0"
+        )}
+      >
         {transactions ? (
           <Chart transactions={transactions} />
         ) : isSimulationRunning ? (

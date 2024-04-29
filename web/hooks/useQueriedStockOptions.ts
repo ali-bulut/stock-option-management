@@ -25,6 +25,7 @@ export default function useQueriedStockOptions() {
           ({
             label: `${stockOption.symbol} (${stockOption.name})`,
             value: stockOption.symbol,
+            id: stockOption.id,
           } as IOptionValue)
       ) || [],
     [stockOptions]

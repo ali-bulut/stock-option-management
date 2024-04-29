@@ -9,6 +9,7 @@ import StockSimulationApi from "./api/StockSimulationApi";
 import StockOptionsApi from "./api/StockOptionsApi";
 import PaymentIntentsApi from "./api/PaymentIntentsApi";
 import PaymentMethodsApi from "./api/PaymentMethodsApi";
+import TradePlansApi from "./api/TradePlansApi";
 
 // Defining Server Side Http Client
 const serverSideHttpClient = axios.create(
@@ -32,6 +33,7 @@ const generator = () => {
       UserApi: UserApi(browserSideHttpClient),
       StockSimulationApi: StockSimulationApi(browserSideHttpClient),
       StockOptionsApi: StockOptionsApi(browserSideHttpClient),
+      TradePlansApi: TradePlansApi(browserSideHttpClient),
       PaymentIntentsApi: PaymentIntentsApi(browserSideHttpClient),
       PaymentMethodsApi: PaymentMethodsApi(browserSideHttpClient),
     },
