@@ -10,7 +10,6 @@ class TradePlan < ActiveRecord::Base
   attr_accessor :stock_option_ids
 
   after_create :deduct_amount_from_user
-  after_destroy :transfer_amount_to_user
 
   after_commit :set_stock_options!
 

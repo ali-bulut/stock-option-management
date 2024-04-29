@@ -39,4 +39,3 @@ en:
         deny_action: "%{user_type} users are not authorized to access this action"
       stock_simulations:
         failure: "An error occurred while running stock simulation"
-        insufficient_balance: "You do not have enough money in your wallet to run this simulation"

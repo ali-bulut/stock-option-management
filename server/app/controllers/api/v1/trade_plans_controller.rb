@@ -3,7 +3,8 @@ class Api::V1::TradePlansController < Api::V1::ApplicationController
   skip_before_action :authenticate_request!, only: [:update_stock_options_quantity]
 
   def index
-    render json: V1::TradePlanSerializer.render(current_user.trade_plans), status: :ok
+    view_name = params[:without_stock_options].present? && params[:without_stock_options] == "true" ? nil : :with_stock_options
+    render json: V1::TradePlanSerializer.render(current_user.trade_plans, view: view_name), status: :ok
   end
 
   def show
@@ -29,7 +30,10 @@ class Api::V1::TradePlansController < Api::V1::ApplicationController
   end
 
   def destroy
+    amount_to_transfer = @trade_plan.total_amount
+
     if @trade_plan.destroy
+      current_user.transfer_amount(amount_to_transfer)
       head :no_content
     else
       render_error(@trade_plan.errors)
