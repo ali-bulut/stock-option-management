@@ -89,15 +89,23 @@ const Header: FC<HeaderProps> = (props) => {
   const navItems = [
     {
       key: "/",
-      className: window.innerWidth < 768 ? "w-12" : "",
-      label: window.innerWidth > 768 ? "Simulation" : "",
+      className:
+        typeof window !== "undefined" && window.innerWidth < 768 ? "w-12" : "",
+      label:
+        typeof window !== "undefined" && window.innerWidth > 768
+          ? "Simulation"
+          : "",
       icon: <BarChartOutlined />,
       onClick: () => router.push("/"),
     },
     {
       key: "/trade-plans",
-      className: window.innerWidth < 768 ? "w-12" : "",
-      label: window.innerWidth > 768 ? "Trade Plans" : "",
+      className:
+        typeof window !== "undefined" && window.innerWidth < 768 ? "w-12" : "",
+      label:
+        typeof window !== "undefined" && window.innerWidth > 768
+          ? "Trade Plans"
+          : "",
       icon: <TransactionOutlined />,
       onClick: () => router.push("/trade-plans"),
     },

@@ -162,12 +162,14 @@ const Page: NextPageWithLayout = () => {
         <div className="flex justify-center items-center gap-2">
           <Button
             icon={<EditOutlined />}
-            className="bg-antd-blue border-antd-blue text-white"
+            disabled={!record.total_amount}
+            type="primary"
             onClick={(e) => onOpenUpdateModal(e, record)}
           />
           <Button
             icon={<DeleteOutlined />}
-            className="bg-red-600 border-red-600 text-white hover:!border-red-600 hover:!text-red-600"
+            disabled={!record.total_amount}
+            danger
             onClick={(e) => onDelete(e, record)}
           />
         </div>
