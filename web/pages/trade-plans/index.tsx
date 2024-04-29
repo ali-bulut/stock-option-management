@@ -91,9 +91,7 @@ const Page: NextPageWithLayout = () => {
       title: "Trade Started At",
       dataIndex: "created_at",
       key: "created_at",
-      render: (created_at: string) => (
-        <WithTooltip text={DateHelper.format(created_at, "PPPP")} />
-      ),
+      render: (created_at: string) => <WithTooltip text={created_at} />,
     },
     {
       title: "Trade Active",
