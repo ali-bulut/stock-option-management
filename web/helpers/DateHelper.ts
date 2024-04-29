@@ -1,4 +1,4 @@
-import { format, parseISO, parseJSON } from "date-fns";
+import { format } from "date-fns";
 
 /**
  * This helper will contain a set of functions that would help with date related operations
@@ -12,6 +12,6 @@ export default class DateHelper {
    * @returns formatted date
    */
   public static format = (date: string, formatStr: string = "PPP"): string => {
-    return format(parseJSON(new Date(date)), formatStr);
+    return format(new Date(date), formatStr);
   };
 }
