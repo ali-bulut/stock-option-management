@@ -19,9 +19,9 @@ const Application: FC<ApplicationProps> = (props) => {
 
       <Layout>
         <Layout.Content className="!overflow-[initial] !p-4 !pt-0">
-          <ErrorBoundary FallbackComponent={Fallback} onReset={onReset}>
-            {props.children}
-          </ErrorBoundary>
+          {/* <ErrorBoundary FallbackComponent={Fallback} onReset={onReset}> */}
+          {props.children}
+          {/* </ErrorBoundary> */}
         </Layout.Content>
       </Layout>
     </Layout>
