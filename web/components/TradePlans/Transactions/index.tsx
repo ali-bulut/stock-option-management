@@ -104,7 +104,7 @@ const Transactions: FC<TransactionsProps> = (props) => {
         <Table
           columns={columns}
           dataSource={props.transactions}
-          pagination={false}
+          pagination={{ defaultPageSize: 10 }}
         />
       </div>
     </Modal>
