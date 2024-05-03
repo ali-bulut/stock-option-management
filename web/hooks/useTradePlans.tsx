@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { HttpClient } from "@/api/HttpClient";
-import { MouseEvent, useState } from "react";
+import { MouseEvent } from "react";
 import {
   CreateTradePlanParams,
   ITradePlan,
@@ -9,11 +9,12 @@ import {
 import { Alert, App, Typography } from "antd";
 import toast from "react-hot-toast";
 import ErrorHelper from "@/helpers/ErrorHelper";
+import useCachedTradePlans from "./useCachedTradePlans";
 
 export default function useTradePlans() {
   const queryClient = useQueryClient();
   const { modal: AppModal } = App.useApp();
-  const [cachedTradePlans, setCachedTradePlans] = useState<ITradePlan[]>([]);
+  const { cachedTradePlans, setCachedTradePlans } = useCachedTradePlans();
 
   const { isLoading: lightTradePlansIsLoading } = useQuery(
     HttpClient.BrowserSide.TradePlansApi.index.key({
@@ -26,32 +27,33 @@ export default function useTradePlans() {
       refetchOnMount: false,
       staleTime: Infinity,
       onSuccess: (data) => {
-        setCachedTradePlans((prev) => {
-          if (!prev.length) return data;
+        if (!cachedTradePlans.length) {
+          setCachedTradePlans(data);
+          return;
+        }
 
-          let updatedData = prev
-            .filter((tradePlan) => data.find((tp) => tp.id === tradePlan.id))
-            .map((tradePlan) => {
-              const foundTradePlan = data.find((tp) => tp.id === tradePlan.id);
+        let updatedData = cachedTradePlans
+          .filter((tradePlan) => data.find((tp) => tp.id === tradePlan.id))
+          .map((tradePlan) => {
+            const foundTradePlan = data.find((tp) => tp.id === tradePlan.id);
 
-              if (!foundTradePlan) return tradePlan;
+            if (!foundTradePlan) return tradePlan;
 
-              foundTradePlan.total_amount = tradePlan.total_amount;
-              foundTradePlan.stock_options = tradePlan.stock_options;
+            foundTradePlan.total_amount = tradePlan.total_amount;
+            foundTradePlan.stock_options = tradePlan.stock_options;
 
-              return foundTradePlan;
-            });
+            return foundTradePlan;
+          });
 
-          data
-            .filter(
-              (tradePlan) => !updatedData.find((tp) => tp.id === tradePlan.id)
-            )
-            .forEach((tradePlan) => {
-              updatedData.push(tradePlan);
-            });
+        data
+          .filter(
+            (tradePlan) => !updatedData.find((tp) => tp.id === tradePlan.id)
+          )
+          .forEach((tradePlan) => {
+            updatedData.push(tradePlan);
+          });
 
-          return updatedData;
-        });
+        setCachedTradePlans(updatedData);
       },
     }
   );
