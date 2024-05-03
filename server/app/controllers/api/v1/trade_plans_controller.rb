@@ -63,7 +63,7 @@ class Api::V1::TradePlansController < Api::V1::ApplicationController
                                                 action: quantity_change.positive? ? TradeTransaction.actions[:sell] : TradeTransaction.actions[:buy])
           end
 
-          trade_plan_stock_option.update!(quantity: stock_option[:quantity])
+          trade_plan_stock_option.update!(quantity: stock_option[:quantity].to_s)
         end
       end
     end

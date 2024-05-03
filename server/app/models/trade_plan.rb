@@ -51,10 +51,18 @@ class TradePlan < ActiveRecord::Base
 
       trade_plan_stock_options.where.not(stock_option_id: stock_option_ids).find_each do |trade_plan_stock_option|
         trade_plan_stock_options.cash.increment!(:quantity, trade_plan_stock_option.amount)
+
+        unless trade_plan_stock_option.quantity.zero?
+          transactions.create!(stock_option_id: trade_plan_stock_option.stock_option_id,
+                               quantity: trade_plan_stock_option.quantity,
+                               price: trade_plan_stock_option.stock_option.price,
+                               action: TradeTransaction.actions[:sell])
+        end
+
         trade_plan_stock_option.destroy!
       end
     end
 
-    run_trade
+    run_trade if transaction_include_any_action?([:create])
   end
 end
