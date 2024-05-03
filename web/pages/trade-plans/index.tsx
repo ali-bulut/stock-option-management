@@ -14,6 +14,7 @@ import {
   EditOutlined,
   DeleteOutlined,
   PlusCircleOutlined,
+  TransactionOutlined,
 } from "@ant-design/icons";
 import {
   CreateTradePlanParams,
@@ -26,6 +27,7 @@ import TradePlanStockOptions from "@/components/TradePlans/TradePlanStockOptions
 import NewTradePlan from "@/components/TradePlans/NewTradePlan";
 import { useModalControls } from "@/hooks/useModalControls";
 import UpdateTradePlan from "@/components/TradePlans/UpdateTradePlan";
+import Transactions from "@/components/TradePlans/Transactions";
 
 const Page: NextPageWithLayout = () => {
   const [expandedRowKeys, setExpandedRowKeys] = useState<number[]>([]);
@@ -44,6 +46,11 @@ const Page: NextPageWithLayout = () => {
     openModal: openUpdateModal,
     closeModal: closeUpdateModal,
   } = useModalControls();
+  const {
+    open: transactionsModalOpen,
+    openModal: openTransactionsModal,
+    closeModal: closeTransactionsModal,
+  } = useModalControls();
 
   const onOpenUpdateModal = (
     e: MouseEvent<HTMLElement, globalThis.MouseEvent>,
@@ -54,6 +61,17 @@ const Page: NextPageWithLayout = () => {
 
     setSelectedTradePlan(record);
     openUpdateModal();
+  };
+
+  const onOpenTransactionsModal = (
+    e: MouseEvent<HTMLElement, globalThis.MouseEvent>,
+    record: ITradePlan
+  ) => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    setSelectedTradePlan(record);
+    openTransactionsModal();
   };
 
   const onCreateTradePlan = async (values: CreateTradePlanParams) => {
@@ -155,6 +173,22 @@ const Page: NextPageWithLayout = () => {
       },
     },
     {
+      title: "Transactions",
+      dataIndex: "",
+      key: "transactions",
+      render: (value, record) => (
+        <div className="flex justify-center items-center">
+          <Button
+            icon={<TransactionOutlined />}
+            type="default"
+            onClick={(e) => onOpenTransactionsModal(e, record)}
+          >
+            Show ({record.transactions.length} records)
+          </Button>
+        </div>
+      ),
+    },
+    {
       title: "Actions",
       dataIndex: "",
       key: "actions",
@@ -238,6 +272,13 @@ const Page: NextPageWithLayout = () => {
             ?.filter((s) => s.stock_option.symbol !== "CASH")
             .map((s) => s.stock_option.id),
         }}
+      />
+
+      <Transactions
+        open={transactionsModalOpen}
+        onClose={closeTransactionsModal}
+        title={selectedTradePlan?.name + " Transactions"}
+        transactions={selectedTradePlan?.transactions || []}
       />
     </Layout>
   );

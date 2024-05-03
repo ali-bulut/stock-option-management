@@ -28,10 +28,23 @@ export type ITradePlan = {
   notify: boolean;
   stock_options?: ITradePlanStockOption[];
   total_amount: number;
+  transactions: ITradeTransaction[];
+};
+
+export type ITradeTransaction = {
+  id: number;
+  price: number;
+  quantity: string;
+  action: "buy" | "sell";
+  amount: number;
+  created_at: string;
+  stock_option: IStockOption;
 };
 
 export type ITradePlanStockOption = {
   amount: number;
   quantity: string;
+  cost: number;
   stock_option: IStockOption & { price: number };
+  transactions: ITradeTransaction[];
 };
