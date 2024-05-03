@@ -16,7 +16,9 @@ Rails.application.routes.draw do
       resources :trade_plans, only: [:index, :show, :create, :update, :destroy] do
         put :update_stock_options_quantity, on: :member
       end
-      resource :stock_simulations, only: [:create, :show]
+      resource :stock_simulations, only: [:create] do
+        post :trade, on: :collection
+      end
       resource :payment_intents, only: [:create]
       resources :payment_methods, only: [:index]
     end

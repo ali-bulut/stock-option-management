@@ -1,7 +1,7 @@
 class Api::V1::StockSimulationsController < Api::V1::ApplicationController
   include RequestHelper
 
-  def show
+  def trade
     transactions = JSON.parse(params[:transactions]).to_h.with_indifferent_access
 
     ActionCable.server.broadcast("stock_simulation_channel_#{current_user.id}",
