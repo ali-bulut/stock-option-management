@@ -1,5 +1,5 @@
 import { FC, MouseEvent, useState } from "react";
-import { Button, Table, Typography } from "antd";
+import { Button, Table, Tag, Typography } from "antd";
 import { TransactionOutlined } from "@ant-design/icons";
 import { ColumnsType } from "antd/es/table";
 import CurrencyHelper from "@/helpers/CurrencyHelper";
@@ -7,6 +7,7 @@ import { ITradePlan, ITradePlanStockOption } from "@/interfaces/ITradePlan";
 import WithTooltip from "@/components/shared/WithTooltip";
 import { useModalControls } from "@/hooks/useModalControls";
 import Transactions from "../Transactions";
+import NumberHelper from "@/helpers/NumberHelper";
 
 interface TradePlanStockOptionsProps {
   record: ITradePlan;
@@ -98,6 +99,31 @@ const TradePlanStockOptions: FC<TradePlanStockOptionsProps> = (props) => {
           text={record.cost ? CurrencyHelper.format(record.cost, 2, true) : "-"}
         />
       ),
+    },
+    {
+      title: "Profit",
+      dataIndex: "profit",
+      key: "profit",
+      sorter: (a, b) => {
+        if (!a.cost) return -1;
+        if (!b.cost) return -1;
+
+        return (
+          (a.stock_option.price - a.cost) / a.cost -
+          (b.stock_option.price - b.cost) / b.cost
+        );
+      },
+      render: (profit: number, record: ITradePlanStockOption) => {
+        if (!record.cost) return "-";
+
+        const percentage =
+          (record.stock_option.price - record.cost) / record.cost;
+        return (
+          <Tag color={percentage >= 0 ? "green" : "red"}>
+            {NumberHelper.formatPercentage(percentage)}
+          </Tag>
+        );
+      },
     },
     {
       title: "Total Shares",

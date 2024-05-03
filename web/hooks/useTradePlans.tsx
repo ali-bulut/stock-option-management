@@ -24,7 +24,8 @@ export default function useTradePlans() {
         refetchOnWindowFocus: false,
         refetchOnReconnect: false,
         refetchOnMount: false,
-        staleTime: Infinity,
+        refetchInterval: 1000 * 30,
+        staleTime: 1000 * 30,
       }
     );
 

@@ -158,6 +158,16 @@ const Page: NextPageWithLayout = () => {
       title: "Profit",
       dataIndex: "profit",
       key: "profit",
+      sorter: (a, b) => {
+        if (!a.total_amount || !b.total_amount) {
+          return -1;
+        }
+
+        return (
+          (a.total_amount - a.initial_amount) / a.initial_amount -
+          (b.total_amount - b.initial_amount) / b.initial_amount
+        );
+      },
       render: (profit: number, record) => {
         if (!record.total_amount) {
           return <Spin />;
