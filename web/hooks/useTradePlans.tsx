@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { HttpClient } from "@/api/HttpClient";
-import { MouseEvent } from "react";
+import { MouseEvent, useState } from "react";
 import {
   CreateTradePlanParams,
   ITradePlan,
@@ -13,27 +13,50 @@ import ErrorHelper from "@/helpers/ErrorHelper";
 export default function useTradePlans() {
   const queryClient = useQueryClient();
   const { modal: AppModal } = App.useApp();
+  const [cachedTradePlans, setCachedTradePlans] = useState<ITradePlan[]>([]);
 
-  const { data: lightTradePlans, isLoading: lightTradePlansIsLoading } =
-    useQuery(
-      HttpClient.BrowserSide.TradePlansApi.index.key({
-        without_stock_options: true,
-      }),
-      HttpClient.BrowserSide.TradePlansApi.index.fetcher,
-      {
-        refetchOnWindowFocus: false,
-        refetchOnReconnect: false,
-        refetchOnMount: false,
-        refetchInterval: 1000 * 30,
-        staleTime: 1000 * 30,
-      }
-    );
+  const { isLoading: lightTradePlansIsLoading } = useQuery(
+    HttpClient.BrowserSide.TradePlansApi.index.key({
+      without_stock_options: true,
+    }),
+    HttpClient.BrowserSide.TradePlansApi.index.fetcher,
+    {
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      refetchOnMount: false,
+      staleTime: Infinity,
+      onSuccess: (data) => {
+        setCachedTradePlans((prev) => {
+          if (!prev.length) return data;
 
-  const {
-    data: tradePlans,
-    isLoading: tradePlansIsLoading,
-    isFetching: tradePlansIsFetching,
-  } = useQuery(
+          let updatedData = prev
+            .filter((tradePlan) => data.find((tp) => tp.id === tradePlan.id))
+            .map((tradePlan) => {
+              const foundTradePlan = data.find((tp) => tp.id === tradePlan.id);
+
+              if (!foundTradePlan) return tradePlan;
+
+              foundTradePlan.total_amount = tradePlan.total_amount;
+              foundTradePlan.stock_options = tradePlan.stock_options;
+
+              return foundTradePlan;
+            });
+
+          data
+            .filter(
+              (tradePlan) => !updatedData.find((tp) => tp.id === tradePlan.id)
+            )
+            .forEach((tradePlan) => {
+              updatedData.push(tradePlan);
+            });
+
+          return updatedData;
+        });
+      },
+    }
+  );
+
+  const { isFetching: tradePlansIsFetching } = useQuery(
     HttpClient.BrowserSide.TradePlansApi.index.key(),
     HttpClient.BrowserSide.TradePlansApi.index.fetcher,
     {
@@ -42,6 +65,9 @@ export default function useTradePlans() {
       refetchOnMount: false,
       refetchInterval: 1000 * 30,
       staleTime: 1000 * 30,
+      onSuccess: (data) => {
+        setCachedTradePlans(data);
+      },
     }
   );
 
@@ -185,8 +211,9 @@ export default function useTradePlans() {
   };
 
   return {
-    tradePlans: tradePlansIsFetching ? lightTradePlans : tradePlans,
+    tradePlans: cachedTradePlans,
     tradePlansIsLoading: lightTradePlansIsLoading,
+    tradePlansIsFetching,
     onCreate,
     onDelete,
     onUpdate,

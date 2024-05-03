@@ -1,5 +1,5 @@
 import { FC, MouseEvent, useState } from "react";
-import { Button, Table, Tag, Typography } from "antd";
+import { Button, Spin, Table, Tag, Typography } from "antd";
 import { TransactionOutlined } from "@ant-design/icons";
 import { ColumnsType } from "antd/es/table";
 import CurrencyHelper from "@/helpers/CurrencyHelper";
@@ -11,6 +11,7 @@ import NumberHelper from "@/helpers/NumberHelper";
 
 interface TradePlanStockOptionsProps {
   record: ITradePlan;
+  isFetching: boolean;
 }
 
 const TradePlanStockOptions: FC<TradePlanStockOptionsProps> = (props) => {
@@ -168,9 +169,14 @@ const TradePlanStockOptions: FC<TradePlanStockOptionsProps> = (props) => {
 
   return (
     <div>
-      <Typography.Title level={4} className="text-center">
-        Portfolio
-      </Typography.Title>
+      <div className="flex justify-center items-center gap-4 mb-2">
+        <Typography.Title level={4} className="text-center !mb-0">
+          Portfolio
+        </Typography.Title>
+
+        {props.isFetching && <Spin />}
+      </div>
+
       <Table columns={columns} dataSource={stockOptions} pagination={false} />
 
       <Transactions

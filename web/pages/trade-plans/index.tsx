@@ -33,8 +33,14 @@ const Page: NextPageWithLayout = () => {
   const [expandedRowKeys, setExpandedRowKeys] = useState<number[]>([]);
   const [selectedTradePlan, setSelectedTradePlan] = useState<ITradePlan>();
 
-  const { tradePlans, tradePlansIsLoading, onDelete, onCreate, onUpdate } =
-    useTradePlans();
+  const {
+    tradePlans,
+    tradePlansIsLoading,
+    tradePlansIsFetching,
+    onDelete,
+    onCreate,
+    onUpdate,
+  } = useTradePlans();
 
   const {
     open: createModalOpen,
@@ -250,7 +256,10 @@ const Page: NextPageWithLayout = () => {
           rowKey={(record) => record.id}
           expandable={{
             expandedRowRender: (record: ITradePlan) => (
-              <TradePlanStockOptions record={record} />
+              <TradePlanStockOptions
+                record={record}
+                isFetching={tradePlansIsFetching}
+              />
             ),
             expandedRowKeys: expandedRowKeys,
             onExpand: onRowExpand,
