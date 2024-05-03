@@ -29,4 +29,16 @@ class TradePlanStockOption < ActiveRecord::Base
   def amount
     (stock_option.price * quantity).round
   end
+
+  def transactions
+    trade_plan.transactions.by_stock_option(stock_option_id)
+  end
+
+  def cost
+    return nil if quantity.zero? || transactions.empty?
+
+    buy_actions = transactions.buy.sum(&:amount)
+    sell_actions = transactions.sell.sum(&:amount)
+    (buy_actions - sell_actions) / quantity
+  end
 end

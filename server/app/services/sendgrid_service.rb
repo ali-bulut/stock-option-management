@@ -59,8 +59,7 @@ class SendgridService
 
     send_grid = SendGrid::API.new(api_key: ENV['SENDGRID_API_KEY'])
     begin
-      response send_grid.client.mail._("send").post(request_body: self.mail_object.to_json)
-      puts response
+      send_grid.client.mail._("send").post(request_body: self.mail_object.to_json)
       true
     rescue StandardError => exception
       Rails.logger.error("Error in SendgridService: #{exception.message}")

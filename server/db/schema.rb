@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_04_28_162909) do
+ActiveRecord::Schema[7.0].define(version: 2024_05_03_145458) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -45,6 +45,18 @@ ActiveRecord::Schema[7.0].define(version: 2024_04_28_162909) do
     t.index ["user_id"], name: "index_trade_plans_on_user_id"
   end
 
+  create_table "trade_transactions", force: :cascade do |t|
+    t.integer "price", null: false
+    t.decimal "quantity", precision: 30, scale: 15, null: false
+    t.integer "action", null: false
+    t.bigint "trade_plan_id", null: false
+    t.bigint "stock_option_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["stock_option_id"], name: "index_trade_transactions_on_stock_option_id"
+    t.index ["trade_plan_id"], name: "index_trade_transactions_on_trade_plan_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "name", null: false
     t.string "email", null: false
@@ -59,4 +71,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_04_28_162909) do
   add_foreign_key "trade_plan_stock_options", "stock_options"
   add_foreign_key "trade_plan_stock_options", "trade_plans"
   add_foreign_key "trade_plans", "users"
+  add_foreign_key "trade_transactions", "stock_options"
+  add_foreign_key "trade_transactions", "trade_plans"
 end

@@ -1,3 +1,3 @@
-TradePlanJob:
+ScheduledTradePlanJob:
   cron: every 10 minutes
-  class: TradePlanJob
+  class: ScheduledTradePlanJob

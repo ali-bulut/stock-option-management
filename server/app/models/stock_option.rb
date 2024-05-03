@@ -1,6 +1,8 @@
 class StockOption < ActiveRecord::Base
   include RequestHelper
 
+  has_many :transactions, class_name: "TradeTransaction", dependent: :destroy
+
   validates_presence_of :symbol, :name
   validates_uniqueness_of :symbol
 

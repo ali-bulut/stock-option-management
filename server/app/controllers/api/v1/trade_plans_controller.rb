@@ -56,6 +56,11 @@ class Api::V1::TradePlansController < Api::V1::ApplicationController
             trade_actions << { symbol: stock_option[:stock_option_symbol],
                                quantity_change: quantity_change.abs.to_s,
                                action: quantity_change.positive? ? "SOLD" : "BOUGHT" }
+
+          @trade_plan.transactions.create!(stock_option_id: trade_plan_stock_option.stock_option_id,
+                                                quantity: quantity_change.abs,
+                                                price: trade_plan_stock_option.stock_option.price,
+                                                action: quantity_change.positive? ? TradeTransaction.actions[:sell] : TradeTransaction.actions[:buy])
           end
 
           trade_plan_stock_option.update!(quantity: stock_option[:quantity])

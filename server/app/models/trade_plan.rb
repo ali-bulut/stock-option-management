@@ -2,6 +2,7 @@ class TradePlan < ActiveRecord::Base
   belongs_to :user
   has_many :trade_plan_stock_options, dependent: :destroy
   has_many :stock_options, through: :trade_plan_stock_options
+  has_many :transactions, class_name: "TradeTransaction", dependent: :destroy
 
   validates_presence_of :name, :initial_amount, :user_id
 
@@ -18,6 +19,10 @@ class TradePlan < ActiveRecord::Base
   end
 
   private
+
+  def run_trade
+    TradePlanJob.perform_later(id)
+  end
 
   def transfer_amount_to_user(amount = self.total_amount)
     unless user.transfer_amount(amount)
@@ -49,5 +54,7 @@ class TradePlan < ActiveRecord::Base
         trade_plan_stock_option.destroy!
       end
     end
+
+    run_trade
   end
 end
