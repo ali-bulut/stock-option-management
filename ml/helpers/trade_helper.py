@@ -24,22 +24,23 @@ def trade(trade_plan_id, stock_options):
         training_data = pd.concat([training_data, stock_data])
 
     # Data preprocessing for training
+    training_data['MA_20'] = calculate_moving_average(training_data.groupby('Symbol')['Close'], 20)
     training_data['MA_50'] = calculate_moving_average(training_data.groupby('Symbol')['Close'], 50)
-    training_data['MA_200'] = calculate_moving_average(training_data.groupby('Symbol')['Close'], 200)
+    training_data['MA_100'] = calculate_moving_average(training_data.groupby('Symbol')['Close'], 100)
     training_data['RSI'] = calculate_rsi(training_data.groupby('Symbol')['Close'])
 
     # Drop NaN values after preprocessing
     training_data.dropna(inplace=True)
 
     # Model training
-    X_train = training_data[['MA_50', 'MA_200', 'RSI']]
+    X_train = training_data[['MA_20', 'MA_50', 'MA_100', 'RSI']]
     y_train = training_data['Close']
 
     model = LinearRegression()
     model.fit(X_train, y_train)
 
     forecast_data = training_data
-    X_forecast = forecast_data[['MA_50', 'MA_200', 'RSI']]
+    X_forecast = forecast_data[['MA_20', 'MA_50', 'MA_100', 'RSI']]
     todays_forecast = X_forecast.filter(like=str(get_date()), axis=0)
     
     if todays_forecast.empty:
@@ -60,7 +61,7 @@ def trade(trade_plan_id, stock_options):
         current_price = row['Close']
         index += 1
 
-        if prediction > current_price:
+        if prediction > current_price * 1.01 or prediction > current_price * 0.99:
             # Partial Buy for Coins
             if stock_options[i]["partial_buy"] == True:
                 max_cash_to_invest = cash * max_cash_percentage_per_trade
@@ -79,8 +80,7 @@ def trade(trade_plan_id, stock_options):
 
             stock_options[i]["quantity"] += shares_to_buy
             cash -= shares_to_buy * current_price
-        elif prediction < current_price:
-            print(f"Prediction for {option} is lower than current price. Selling shares..., {prediction} < {current_price}")
+        elif prediction < current_price * 0.99 or prediction < current_price * 1.01:
             # Sell
             if stock_options[i]["quantity"] > 0:
                 cash += stock_options[i]["quantity"] * current_price

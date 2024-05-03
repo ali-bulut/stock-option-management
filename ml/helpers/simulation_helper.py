@@ -3,7 +3,7 @@ import pandas as pd
 import json
 from sklearn.linear_model import LinearRegression
 from helpers.technical_analysis_helper import calculate_moving_average, calculate_rsi
-from helpers.http_request_helper import get_request
+from helpers.http_request_helper import post_request
 
 def simulate(initial_amount, options, auth_token):
     if initial_amount is None:
@@ -31,15 +31,16 @@ def simulate(initial_amount, options, auth_token):
         training_data = pd.concat([training_data, stock_data])
 
     # Data preprocessing for training
+    training_data['MA_20'] = calculate_moving_average(training_data.groupby('Symbol')['Close'], 20)
     training_data['MA_50'] = calculate_moving_average(training_data.groupby('Symbol')['Close'], 50)
-    training_data['MA_200'] = calculate_moving_average(training_data.groupby('Symbol')['Close'], 200)
+    training_data['MA_100'] = calculate_moving_average(training_data.groupby('Symbol')['Close'], 100)
     training_data['RSI'] = calculate_rsi(training_data.groupby('Symbol')['Close'])
 
     # Drop NaN values after preprocessing
     training_data.dropna(inplace=True)
 
     # Model training
-    X_train = training_data[['MA_50', 'MA_200', 'RSI']]
+    X_train = training_data[['MA_20', 'MA_50', 'MA_100', 'RSI']]
     y_train = training_data['Close']
 
     model = LinearRegression()
@@ -54,15 +55,16 @@ def simulate(initial_amount, options, auth_token):
         forecast_data = pd.concat([forecast_data, stock_data])
 
     # Data preprocessing for forecasting
+    forecast_data['MA_20'] = calculate_moving_average(forecast_data.groupby('Symbol')['Close'], 20)
     forecast_data['MA_50'] = calculate_moving_average(forecast_data.groupby('Symbol')['Close'], 50)
-    forecast_data['MA_200'] = calculate_moving_average(forecast_data.groupby('Symbol')['Close'], 200)
+    forecast_data['MA_100'] = calculate_moving_average(forecast_data.groupby('Symbol')['Close'], 100)
     forecast_data['RSI'] = calculate_rsi(forecast_data.groupby('Symbol')['Close'])
 
     # Drop NaN values after preprocessing
     forecast_data.dropna(inplace=True)
 
     # Make predictions for 2023 using the trained model
-    X_forecast = forecast_data[['MA_50', 'MA_200', 'RSI']]
+    X_forecast = forecast_data[['MA_20', 'MA_50', 'MA_100', 'RSI']]
     predictions = model.predict(X_forecast)
 
     # Simulate trading for each day and calculate final portfolio value
@@ -105,7 +107,7 @@ def simulate(initial_amount, options, auth_token):
             if date.month in transactions[option] and transactions[option][date.month]["total_shares"] > 0:
                 transactions[option][date.month]["total_price"] = transactions[option][date.month]["total_shares"] * current_price
 
-            if prediction > current_price:
+            if prediction > current_price * 1.01 or prediction > current_price * 0.99:
                 # Buy
                 if cash > current_price:
                     max_cash_to_invest = cash * max_cash_percentage_per_trade
@@ -122,7 +124,7 @@ def simulate(initial_amount, options, auth_token):
                     transactions[option][date.month]["total_shares"] += shares_to_buy
                     transactions["CASH"][date.month]["total_price"] = cash
                     transaction_history.append({ 'date': date.strftime('%Y-%m-%d %H:%M:%S'), 'action': 'BUY', 'ticker': option, 'amount_of_options': shares_to_buy, 'price': current_price, 'total_options': shares_owned[option], 'cash': cash })
-            elif prediction < current_price:
+            elif prediction < current_price * 0.99 or prediction < current_price * 1.01:
                 # Sell
                 if shares_owned[option] > 0:
                     cash += shares_owned[option] * current_price
@@ -135,7 +137,7 @@ def simulate(initial_amount, options, auth_token):
             # Retrain the model after each iteration/day with most upto date data
             row_df = pd.DataFrame(row).transpose()
             training_data = pd.concat([training_data, row_df])
-            X_train = training_data[['MA_50', 'MA_200', 'RSI']]
+            X_train = training_data[['MA_20', 'MA_50', 'MA_100', 'RSI']]
             y_train = training_data['Close']
             model.fit(X_train, y_train)
 
@@ -148,7 +150,7 @@ def simulate(initial_amount, options, auth_token):
             j += 1
 
         if j % 5 == 0:
-            get_request(dict(transactions=json.dumps(transactions), date=date.strftime('%B %d, %Y')), auth_token)
+            post_request(dict(transactions=json.dumps(transactions), date=date.strftime('%B %d, %Y')), auth_token)
 
     start_date = forecast_data.index[0]
     end_date = forecast_data.index[-1]
@@ -175,8 +177,9 @@ def simulate(initial_amount, options, auth_token):
         "start_date": start_date.strftime('%Y-%m-%d %H:%M:%S'),
         "end_date": end_date.strftime('%Y-%m-%d %H:%M:%S'),
         "options_used": list(set(transaction['ticker'] for transaction in transaction_history)),
+        "transaction_history": transaction_history,
     }
 
-    get_request(dict(transactions=json.dumps(transactions), result=json.dumps(result), end=True, date=date.strftime('%B %d, %Y')), auth_token)
+    post_request(dict(transactions=json.dumps(transactions), result=json.dumps(result), end=True, date=date.strftime('%B %d, %Y')), auth_token)
     
     return result
