@@ -11,7 +11,10 @@ def trade(trade_plan_id, stock_options):
         stock_option["quantity"] = float(stock_option["quantity"])
 
     cash = float(list(filter(lambda p: p["stock_option_symbol"] == "CASH", stock_options))[0]["quantity"] / 100)
-    max_cash_percentage_per_trade = 0.1
+    if cash > 100:
+        max_cash_percentage_per_trade = 0.1
+    else:
+        max_cash_percentage_per_trade = 1
 
     stock_options = list(filter(lambda p: p["stock_option_symbol"] != "CASH", stock_options))
 
