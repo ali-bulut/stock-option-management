@@ -9,7 +9,7 @@ class TradePlanJob < ApplicationJob
     stock_options = trade_plan.trade_plan_stock_options.available_for_trade.map do |trade_plan_stock_option|
       {
         stock_option_symbol: trade_plan_stock_option.stock_option.symbol,
-        quantity: trade_plan_stock_option.quantity,
+        quantity: trade_plan_stock_option.quantity.to_s,
         partial_buy: trade_plan_stock_option.stock_option.partial_buy
       }
     end
