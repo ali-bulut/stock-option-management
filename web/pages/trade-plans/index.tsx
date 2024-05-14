@@ -198,6 +198,7 @@ const Page: NextPageWithLayout = () => {
             icon={<TransactionOutlined />}
             type="default"
             onClick={(e) => onOpenTransactionsModal(e, record)}
+            className="px-3"
           >
             Show ({record.transactions.length} records)
           </Button>
