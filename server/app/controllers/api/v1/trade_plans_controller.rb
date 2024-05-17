@@ -50,9 +50,9 @@ class Api::V1::TradePlansController < Api::V1::ApplicationController
         stock_option = stock_option.with_indifferent_access
         trade_plan_stock_option = @trade_plan.trade_plan_stock_options.by_symbol(stock_option[:stock_option_symbol])
 
-        if trade_plan_stock_option.quantity != stock_option[:quantity]
+        if trade_plan_stock_option.quantity.to_f != stock_option[:quantity].to_f
           if stock_option[:stock_option_symbol] != "CASH"
-            quantity_change = trade_plan_stock_option.quantity - stock_option[:quantity]
+            quantity_change = trade_plan_stock_option.quantity.to_f - stock_option[:quantity].to_f
             trade_actions << { symbol: stock_option[:stock_option_symbol],
                                quantity_change: quantity_change.abs.to_s,
                                action: quantity_change.positive? ? "SOLD" : "BOUGHT" }
