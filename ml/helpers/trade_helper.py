@@ -6,19 +6,21 @@ from helpers.technical_analysis_helper import calculate_moving_average, calculat
 from helpers.date_helper import get_date
 from helpers.http_request_helper import put_request
 
+def max_cash_percentage(cash):
+    if cash > 100:
+        return 0.1
+    elif cash > 50:
+        return 0.25
+    elif cash > 25:
+        return 0.5
+    else:
+        return 1
+
 def trade(trade_plan_id, stock_options):
     for stock_option in stock_options:
         stock_option["quantity"] = float(stock_option["quantity"])
 
     cash = float(list(filter(lambda p: p["stock_option_symbol"] == "CASH", stock_options))[0]["quantity"] / 100)
-    if cash > 100:
-        max_cash_percentage_per_trade = 0.1
-    elif cash > 50:
-        max_cash_percentage_per_trade = 0.25
-    elif cash > 25:
-        max_cash_percentage_per_trade = 0.5
-    else:
-        max_cash_percentage_per_trade = 1
 
     stock_options = list(filter(lambda p: p["stock_option_symbol"] != "CASH", stock_options))
 
@@ -57,6 +59,7 @@ def trade(trade_plan_id, stock_options):
 
     index = 0
     for i, option in enumerate(stock_options):
+        max_cash_percentage_per_trade = max_cash_percentage(cash)
         data_for_option = forecast_data[forecast_data['Symbol'] == option["stock_option_symbol"]]
         row = data_for_option.filter(like=str(get_date()), axis=0)
         if row.empty:
